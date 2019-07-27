@@ -1,11 +1,39 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+#! nix-shell -i bash -p nodejs imagemagick "python3.withPackages (pkgs: with pkgs; [pandocfilters pyphen])"
 
-filename="${1##*/}"
-name="${filename%.*}"
+set -e
 
-convert -background white -fill black -font Linux-Biolinum-O-Bold \
-        -size 600x900  -gravity center \
-        label:"${name^}" out/cover.png
+export PATH=$PATH:/home/qb/Downloads/kindlegen
+
+dir=$(pwd)
+
+cd "$(dirname "$0")"
+
+link=$1
+
+curl "$link" > out/article.html
+
+readable="out/article.readable"
+
+node readability.js out/article.html > "$readable"
+
+title=$(head -n 1 "$readable")
+author=$(cat "$readable" | head -n 2 | tail -n 1)
+
+name="$title by $author"
+
+convert \
+    -background white \
+    -size 1560x2560 \
+    -bordercolor white \
+    -border 100 \
+    -bordercolor black \
+    -border 10 \
+    -gravity center \
+    -fill black \
+    -font Linux-Libertine-Display-O \
+   caption:"$title" \
+   out/cover.png
 
 pandoc \
 		-s \
@@ -16,7 +44,14 @@ pandoc \
 		-o out/"$name".epub \
 		-c ebook.css \
 		--template template.t \
+    -f html \
 		-t epub3 \
-		"$1"
+    --metadata title="$title" \
+    --metadata author="$author" \
+    <(tail -n +3 "$readable")
 
 kindlegen out/"$name".epub
+
+cp out/"$name".mobi "$dir"
+
+rm out/*
