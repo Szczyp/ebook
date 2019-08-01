@@ -11,16 +11,16 @@ cd "$(dirname "$0")"
 
 link=$1
 
-curl "$link" > out/article.html
+curl -s "$link" > out/article.html
 
 readable="out/article.readable"
 
 node readability.js out/article.html > "$readable"
 
-title=$(head -n 1 "$readable")
-author=$(cat "$readable" | head -n 2 | tail -n 1)
+title=$(head -n 1 "$readable" | xargs)
+author=$(cat "$readable" | head -n 2 | tail -n 1 | xargs)
 
-name="$title by $author"
+name="$title - $author"
 
 convert \
     -background white \
@@ -33,7 +33,7 @@ convert \
     -fill black \
     -font Linux-Libertine-Display-O \
    caption:"$title" \
-   out/cover.png
+   out/cover.png > /dev/null
 
 pandoc \
 		-s \
@@ -48,10 +48,12 @@ pandoc \
 		-t epub3 \
     --metadata title="$title" \
     --metadata author="$author" \
-    <(tail -n +3 "$readable")
+    <(tail -n +3 "$readable") > /dev/null
 
-kindlegen out/"$name".epub
+kindlegen out/"$name".epub > /dev/null
 
 cp out/"$name".mobi "$dir"
 
 rm out/*
+
+echo "$name"
