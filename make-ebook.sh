@@ -38,6 +38,7 @@ convert \
 pandoc \
 		-s \
 		--filter hyphenate.py \
+		--filter strip_img.py \
 		--section-divs \
 		--toc-depth=1 \
 		--epub-cover-image out/cover.png \
