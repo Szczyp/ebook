@@ -10,5 +10,5 @@ let reader = new Readability(doc.window.document);
 let article = reader.parse();
 
 console.log(article.title);
-console.log(article.byline);
+console.log(article.byline || "");
 console.log(article.content);
