@@ -11,16 +11,22 @@ cd "$(dirname "$0")"
 
 link=$1
 
-curl -s "$link" > out/article.html
+sha=$(echo "$link" | md5sum | cut -d ' ' -f 1)
 
-readable="out/article.readable"
+html=out/"$sha".html
 
-node readability.js out/article.html > "$readable"
+curl -s "$link" > "$html"
+
+readable=out/"$sha".readable
+
+node readability.js "$html" > "$readable"
 
 title=$(head -n 1 "$readable" | xargs)
 author=$(cat "$readable" | head -n 2 | tail -n 1 | xargs)
 
 name="$title - $author"
+
+cover=out/"$sha".png
 
 convert \
     -background white \
@@ -33,7 +39,7 @@ convert \
     -fill black \
     -font Linux-Libertine-Display-O \
    caption:"$title" \
-   out/cover.png > /dev/null
+   "$cover" > /dev/null
 
 pandoc \
 		-s \
@@ -41,7 +47,7 @@ pandoc \
 		--filter strip_img.py \
 		--section-divs \
 		--toc-depth=1 \
-		--epub-cover-image out/cover.png \
+		--epub-cover-image "$cover" \
 		-o out/"$name".epub \
 		-c ebook.css \
 		--template template.t \
@@ -52,9 +58,5 @@ pandoc \
     <(tail -n +3 "$readable") > /dev/null
 
 kindlegen out/"$name".epub > /dev/null
-
-cp out/"$name".mobi "$dir"
-
-rm out/*
 
 echo "$name"
