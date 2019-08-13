@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import asyncio
 import subprocess
 import ssl
 from time import sleep
@@ -35,11 +36,15 @@ def extract_links(mails):
             url = urls[0].rstrip("\\r\\n")
             yield {'url': url, 'from': sender}
 
-def make_ebooks(bags):
-    for bag in bags:
-        name = subprocess.check_output(['./make-ebook.sh', bag['url']])
-        bag['ebook'] = name.decode('utf-8').replace("\n", '')
-        yield bag
+async def make_ebooks(bags):
+    return await asyncio.gather(*[make_ebook(bag) for bag in bags])
+
+async def make_ebook(bag):
+    proc = await asyncio.subprocess.create_subprocess_exec('./make-ebook.sh', bag['url'], stdout=asyncio.subprocess.PIPE)
+    name = await proc.stdout.readline()
+    bag['ebook'] = name.decode('utf-8').replace("\n", '')
+    await proc.wait()
+    return bag
 
 def create_mails(bags):
     for bag in bags:
@@ -48,7 +53,7 @@ def create_mails(bags):
         mail["To"] = CONFIG['RECIPIENTS'][bag['from']]
         mail["Subject"] = bag['ebook']
         mail["Message-ID"] = email.utils.make_msgid()
-        filename = bag['ebook'] + ".mobi"
+        filename = f"out/{bag['ebook']}.mobi"
         with open(filename, 'rb') as f:
             mail.add_attachment(f.read(), filename=filename, maintype='application', subtype='octet-stream')
         yield mail
@@ -62,15 +67,16 @@ def send_mails(mails):
             for mail in mails:
                 smtp.send_message(mail)
 
-def remove_sent_ebooks():
-    subprocess.call('rm *.mobi', shell=True, stderr=subprocess.DEVNULL)
+def clear_workspace():
+    subprocess.call('rm out/*', shell=True, stderr=subprocess.DEVNULL)
 
 if __name__ == "__main__":
     while True:
         send_mails(
             create_mails(
-                make_ebooks(
-                    extract_links(
-                        fetch_mails()))))
-        remove_sent_ebooks()
+                asyncio.run(
+                    make_ebooks(
+                        extract_links(
+                            fetch_mails())))))
+        clear_workspace()
         sleep(CONFIG['POLL_FREQUENCY'])
