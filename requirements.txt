@@ -1,0 +1,7 @@
+imapclient
+pandocfilters
+Pyphen
+urlextract
+PyYAML
+aiohttp
+cchardet

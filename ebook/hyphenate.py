@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 from pandocfilters import Para, Str, toJSONFilter, walk
 from pyphen import Pyphen
@@ -16,5 +18,8 @@ def hyphenate(key, value, format, meta):
             lambda match: dic.inserted(match.group(0), hyphen='­'),
             value))
 
-if __name__ == "__main__":
+def main():
     toJSONFilter(inpara)
+
+if __name__ == "__main__":
+    main()

@@ -3,3 +3,5 @@
 /ebook-venv/
 /__pycache__/
 /mailwatch.config.yaml
+/result
+/ebook/__pycache__/
