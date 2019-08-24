@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='ebook',
-      version='1.0.1',
+      version='1.0.2',
       description='Make ebooks from links',
       url='http://github.com/Szczyp/ebook',
       author='Szczyp',

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import json
 import argparse
 import os
@@ -65,16 +66,16 @@ async def readability(html):
 async def make_epub(filename, title, author, content):
     os.chdir(os.path.dirname(__file__))
     proc = await asyncio.subprocess.create_subprocess_exec('pandoc',
-		                                           '-s',
-		                                           '--filter', 'hyphenate',
-		                                           '--filter', 'strip_img',
-		                                           '--section-divs',
-		                                           '--toc-depth', '1',
-		                                           '-o', f'{filename}.epub',
+                                                           '-s',
+                                                           '--filter', 'hyphenate',
+                                                           '--filter', 'strip_img',
+                                                           '--section-divs',
+                                                           '--toc-depth', '1',
+                                                           '-o', f'{filename}.epub',
                                                            '-c', 'ebook.css',
                                                            '--template', 'template.t',
                                                            '-f', 'html',
-		                                           '-t', 'epub3',
+                                                           '-t', 'epub3',
                                                            '--metadata', f'title={title}',
                                                            '--metadata', f'author={author}',
                                                            stdin=asyncio.subprocess.PIPE,
@@ -87,12 +88,18 @@ async def make_mobi(filename):
                                                            stdout=asyncio.subprocess.DEVNULL)
     await proc.wait()
 
+def get_name(article):
+    return re.sub(' {2,}', ' ',
+                  re.sub('[\t\r\n]', ' ',
+                         (article['title'] +
+                          (" - " + article['byline'] if article['byline'] else ""))))
+
 async def make_ebook(session, bag):
     html = await fetch_link(session, bag['url'])
     article = await readability(html)
-    name = article['title'] + (" - " + article['byline'] if article['byline'] else "")
+    name = get_name(article)
     tmpdir = tempfile.mkdtemp()
-    filename = os.path.join(tmpdir, name)
+    filename = os.path.join(tmpdir, re.sub(r'(?u)[^-\w.]', ' ', name))
     await make_epub(filename, article['title'], article['byline'], article['content'])
     await make_mobi(filename)
     bag['name'] = name
@@ -104,7 +111,7 @@ def create_mails(bags):
         mail = email.message.EmailMessage()
         mail['From'] = CONFIG['USERNAME']
         mail["To"] = CONFIG['RECIPIENTS'][bag['from']]
-        mail["Subject"] = os.path.basename(bag['name'])
+        mail["Subject"] = bag['name']
         mail["Message-ID"] = email.utils.make_msgid()
         filename = bag['filename'] + ".mobi"
         with open(filename, 'rb') as f:

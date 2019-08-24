@@ -3,7 +3,7 @@
 let
   python = import ./requirements.nix { inherit pkgs; };
 in python.mkDerivation {
-  name = "ebook-1.0.1";
+  name = "ebook-1.0.2";
   src = ./.;
   buildInputs = [];
   propagatedBuildInputs =
