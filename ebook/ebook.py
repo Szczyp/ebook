@@ -123,6 +123,7 @@ def send_mails(mails):
 
 def main():
     read_config()
+    URLExtract().update_when_older(30)
     send_mails(
         create_mails(
             asyncio.run(make_ebooks(
