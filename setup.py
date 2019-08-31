@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='ebook',
-      version='1.0.2',
+      version='1.0.3',
       description='Make ebooks from links',
       url='http://github.com/Szczyp/ebook',
       author='Szczyp',
@@ -9,7 +9,8 @@ setup(name='ebook',
       license='GPL3',
       packages=['ebook'],
       entry_points={"console_scripts": ["ebook = ebook.ebook:main",
+                                        "url2ebook = ebook.ebook:url2ebook",
                                         "hyphenate = ebook.hyphenate:main",
-                                        "strip_img = ebook.strip_img:main"]},
+                                        "convert_img = ebook.convert_img:main"]},
       include_package_data=True,
       zip_safe=False)
