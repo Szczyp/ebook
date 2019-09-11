@@ -5,3 +5,4 @@ urlextract
 PyYAML
 aiohttp
 cchardet
+beautifulsoup4

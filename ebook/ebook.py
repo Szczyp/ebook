@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 
-import re
-import json
+import aiohttp
 import argparse
-import os
 import asyncio
-import ssl
+from bs4 import BeautifulSoup
 import email
 from email import policy
 from imapclient import IMAPClient
-from urlextract import URLExtract
-from smtplib import SMTP
-import yaml
-import aiohttp
-import tempfile
+import json
 import logging
+import os
+import re
 import shutil
+from smtplib import SMTP
+import ssl
+import tempfile
+from urlextract import URLExtract
+from urllib.parse import urlparse
+import yaml
 
 logging.basicConfig(level=logging.INFO)
 
@@ -62,12 +64,20 @@ async def fetch_link(session, url):
         return await response.text()
 
 
+async def fetch_img(session, url, filename):
+    async with session.get(url) as response:
+        with open(filename, 'wb') as f:
+            async for chunk, _ in response.content.iter_chunks():
+                f.write(chunk)
+
+
 async def readability(html):
     proc = await asyncio.subprocess.create_subprocess_exec(
         'readability',
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE)
     out, err = await proc.communicate(html.encode())
+    await proc.wait()
     return json.loads(out.decode())
 
 
@@ -77,7 +87,6 @@ async def make_epub(filename, title, author, content):
         'pandoc',
         '-s',
         '--filter', 'hyphenate',
-        '--filter', 'convert_img',
         '--section-divs',
         '--toc-depth', '1',
         '-o', f'{filename}.epub',
@@ -99,6 +108,17 @@ async def make_mobi(filename):
     await proc.wait()
 
 
+async def mogrify(filename):
+    proc = await asyncio.subprocess.create_subprocess_exec(
+        'mogrify',
+        '-colorspace', 'Gray',
+        '-alpha', 'off',
+        '-quality', '85',
+        '-strip',
+        '-resize', '1072x1448>',
+        filename)
+    await proc.wait()
+
 def get_name(article):
     return re.sub(
         ' {2,}', ' ',
@@ -107,11 +127,26 @@ def get_name(article):
                 (" - " + article['byline'] if article['byline'] else ""))))
 
 
+async def convert_image(session, img, tmpdir):
+    url = img["src"]
+    filename = os.path.join(tmpdir, os.path.basename(urlparse(url).path))
+    await fetch_img(session, url, filename)
+    await mogrify(filename)
+    img["src"] = filename
+
+
+async def convert_images(session, article, tmpdir):
+    soup = BeautifulSoup(article["content"], "html.parser")
+    await asyncio.gather(*[convert_image(session, img, tmpdir) for img in soup.find_all('img')])
+    article["content"] = str(soup)
+
+
 async def make_ebook(session, bag):
     html = await fetch_link(session, bag['url'])
     article = await readability(html)
-    name = get_name(article)
     tmpdir = tempfile.mkdtemp()
+    await convert_images(session, article, tmpdir)
+    name = get_name(article)
     filename = os.path.join(tmpdir, re.sub(r'(?u)[^-\w.]', ' ', name))
     await make_epub(filename, article['title'], article['byline'],
                     article['content'])

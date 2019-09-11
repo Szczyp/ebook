@@ -7,10 +7,11 @@ let
     pandoc
     kindlegen
     readability
+    imagemagick7
   ]);
 
   drv = python.mkDerivation {
-    name = "ebook-1.0.3";
+    name = "ebook-1.0.4";
     src = ./.;
     buildInputs = [];
     propagatedBuildInputs = (builtins.attrValues python.packages) ++ external-dependencies;
@@ -20,4 +21,4 @@ let
     buildInputs = [ python.interpreter ] ++ external-dependencies;
   };
 in
-if pkgs.lib.inNixShell then dev-env else drv
+drv // { inherit dev-env; }
