@@ -1,0 +1,5 @@
+profile: kafka
+defaultPackage: cartographer
+---
+testFramework: junit
+sourceLanguage: java

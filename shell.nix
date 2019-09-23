@@ -1,2 +1,5 @@
 { pkgs ? import <nixpkgs> {} }:
-(pkgs.pythonPackages.callPackage(./.){}).dev-env
+with pkgs;
+mkShell {
+  buildInputs = [ docker-compose ];
+}

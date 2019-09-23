@@ -1,7 +1,2 @@
-/out/
-/node_modules/
-/ebook-venv/
-/__pycache__/
-/config.yaml
+/kafka/
 /result
-/ebook/__pycache__/

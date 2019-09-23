@@ -1,24 +1,19 @@
 { pkgs ? import <nixpkgs> {} }:
-
+with pkgs;
 let
-  python = import ./requirements.nix { inherit pkgs; };
-
-  external-dependencies = (with pkgs; [
-    pandoc
-    kindlegen
-    readability
-    imagemagick7
-  ]);
-
-  drv = python.mkDerivation {
-    name = "ebook-1.0.4";
-    src = ./.;
-    buildInputs = [];
-    propagatedBuildInputs = (builtins.attrValues python.packages) ++ external-dependencies;
+  cartographer = callPackage ./cartographer { inherit pkgs; };
+  cartographer-img = dockerTools.buildImage {
+    name = "cartographer";
+    tag = "latest";
+    config.Cmd = [ "${cartographer}/bin/cartographer" ];
   };
 
-  dev-env = pkgs.mkShell {
-    buildInputs = [ python.interpreter ] ++ external-dependencies;
+  urex = callPackage ./urex { inherit pkgs; };
+  urex-img = dockerTools.buildImage {
+    name = "urex";
+    tag = "latest";
+    config.Cmd = [ "${urex}/bin/urex" ];
   };
-in
-drv // { inherit dev-env; }
+in {
+  inherit cartographer cartographer-img urex urex-img;
+}

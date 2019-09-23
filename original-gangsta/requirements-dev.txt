@@ -1,0 +1,8 @@
+jedi
+service_factory
+json-rpc
+flake8
+yapf
+autoflake
+pytest-runner
+importmagic3
