@@ -5,7 +5,6 @@ let
   drv = buildGoModule {
     name = "dog-1.0.0";
     src = ./.;
-    goDeps = ./deps.nix;
     buildInputs = [ rdkafka pkg-config ];
     modSha256 = "0ny06w9ksnfb4b7nvlczlyff21g1h06h7bmhxhh4y722q8vjki21";
 

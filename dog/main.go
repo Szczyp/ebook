@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
@@ -35,13 +36,18 @@ func fetch(link string) string {
 }
 
 func main() {
+	servers := os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
+	if servers == "" {
+		servers = "localhost:9092"
+	}
+
 	consumer, _ := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": servers,
 		"group.id":          "pack",
 	})
 
 	producer, _ := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": servers,
 	})
 
 	consumer.Subscribe( "extracted-links", nil)

@@ -14,6 +14,13 @@ let
     tag = "latest";
     config.Cmd = [ "${urex}/bin/urex" ];
   };
+
+  dog = callPackage ./dog { inherit pkgs; };
+  dog-img = dockerTools.buildImage {
+    name = "dog";
+    tag = "latest";
+    config.Cmd = [ "${dog}/bin/dog" ];
+  };
 in {
-  inherit cartographer cartographer-img urex urex-img;
+  inherit cartographer cartographer-img urex urex-img dog dog-img;
 }
