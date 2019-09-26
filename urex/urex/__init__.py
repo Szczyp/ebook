@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from kafka import KafkaConsumer, KafkaProducer
+from confluent_kafka import Consumer, Producer
 import email
 from email import policy
 from urlextract import URLExtract
@@ -9,7 +9,7 @@ import os
 
 
 def extract_links(msg):
-    mail = email.message_from_bytes(msg.value, policy=policy.default)
+    mail = email.message_from_bytes(msg.value(), policy=policy.default)
     sender = URLExtract(extract_email=True).find_urls(mail["From"])[0]
     payload = mail.get_payload(decode=True)
     urls = URLExtract().find_urls(str(payload))
@@ -19,14 +19,29 @@ def extract_links(msg):
 
 def main():
     servers = os.environ.get('KAFKA_BOOTSTRAP_SERVERS') or "localhost:9092"
-    consumer = KafkaConsumer('received-mails', bootstrap_servers=servers)
-    producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf8'),
-                             bootstrap_servers=servers)
 
-    for msg in consumer:
+    producer = Producer({'bootstrap.servers': servers})
+
+    consumer = Consumer({
+        'bootstrap.servers': servers,
+        'group.id': 'urex',
+        'auto.offset.reset': 'earliest'
+    })
+
+    consumer.subscribe(['received-mails'])
+
+    while True:
+        msg = consumer.poll(1.0)
+
+        if msg is None:
+            continue
+
         links = extract_links(msg)
+
         if links['url']:
-            producer.send('extracted-links', key=msg.key, value=links)
+            producer.produce('extracted-links',
+                             key=msg.key(),
+                             value=json.dumps(links).encode('utf8'))
 
 
 if __name__ == "__main__":

@@ -41,7 +41,6 @@ services:
 
   urex:
     image: urex:latest
-    restart: always
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:19092
     depends_on:

@@ -2,7 +2,7 @@
 # See more at: https://github.com/nix-community/pypi2nix
 #
 # COMMAND:
-#   pypi2nix -r requirements.txt -r requirements-dev.txt -V 3.7
+#   pypi2nix -V 3 -r requirements.txt -r requirements-dev.txt -E rdkafka
 #
 
 { pkgs ? import <nixpkgs> {},
@@ -18,31 +18,31 @@ let
   import "${toString pkgs.path}/pkgs/top-level/python-packages.nix" {
     inherit pkgs;
     inherit (pkgs) stdenv;
-    python = pkgs.python37;
+    python = pkgs.python3;
     # patching pip so it does not try to remove files when running nix-shell
     overrides =
       self: super: {
         bootstrapped-pip = super.bootstrapped-pip.overrideDerivation (old: {
           patchPhase = old.patchPhase + ''
-            if [ -e $out/${pkgs.python37.sitePackages}/pip/req/req_install.py ]; then
+            if [ -e $out/${pkgs.python3.sitePackages}/pip/req/req_install.py ]; then
               sed -i \
                 -e "s|paths_to_remove.remove(auto_confirm)|#paths_to_remove.remove(auto_confirm)|"  \
                 -e "s|self.uninstalled = paths_to_remove|#self.uninstalled = paths_to_remove|"  \
-                $out/${pkgs.python37.sitePackages}/pip/req/req_install.py
+                $out/${pkgs.python3.sitePackages}/pip/req/req_install.py
             fi
           '';
         });
       };
   };
 
-  commonBuildInputs = [];
+  commonBuildInputs = with pkgs; [ rdkafka ];
   commonDoCheck = false;
 
   withPackages = pkgs':
     let
       pkgs = builtins.removeAttrs pkgs' ["__unfix__"];
       interpreterWithPackages = selectPkgsFn: pythonPackages.buildPythonPackage {
-        name = "python37-interpreter";
+        name = "python3-interpreter";
         buildInputs = [ makeWrapper ] ++ (selectPkgsFn pkgs);
         buildCommand = ''
           mkdir -p $out/bin
@@ -153,6 +153,24 @@ let
         homepage = "https://github.com/chardet/chardet";
         license = licenses.lgpl3;
         description = "Universal encoding detector for Python 2 and 3";
+      };
+    };
+
+    "confluent-kafka" = python.mkDerivation {
+      name = "confluent-kafka-1.1.0";
+      src = pkgs.fetchurl {
+        url = "https://files.pythonhosted.org/packages/c7/27/e7f6d54dafb050dcb66622742d8a39c5742ca6aa00c337b043738da78abf/confluent-kafka-1.1.0.tar.gz";
+        sha256 = "c8dee478a46a9352224fce1d12756cff6cf50e2684121a118141c7908ae9ed3e";
+};
+      doCheck = commonDoCheck;
+      buildInputs = commonBuildInputs ++ [ ];
+      propagatedBuildInputs = [
+        self."requests"
+      ];
+      meta = with pkgs.stdenv.lib; {
+        homepage = "https://github.com/confluentinc/confluent-kafka-python";
+        license = "UNKNOWN";
+        description = "Confluent's Python client for Apache Kafka";
       };
     };
 
@@ -320,22 +338,6 @@ let
       };
     };
 
-    "kafka-python" = python.mkDerivation {
-      name = "kafka-python-1.4.6";
-      src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/26/de/81a65219f7a3f3b2f53b693edec7fb1933f1d7b68b49c931d810d6317f5e/kafka-python-1.4.6.tar.gz";
-        sha256 = "08f83d8e0af2e64d25f94314d4bef6785b34e3b0df0effe9eebf76b98de66eeb";
-};
-      doCheck = commonDoCheck;
-      buildInputs = commonBuildInputs ++ [ ];
-      propagatedBuildInputs = [ ];
-      meta = with pkgs.stdenv.lib; {
-        homepage = "https://github.com/dpkp/kafka-python";
-        license = licenses.asl20;
-        description = "Pure Python client for Apache Kafka";
-      };
-    };
-
     "mccabe" = python.mkDerivation {
       name = "mccabe-0.6.1";
       src = pkgs.fetchurl {
@@ -434,22 +436,6 @@ let
       };
     };
 
-    "pyyaml" = python.mkDerivation {
-      name = "pyyaml-5.1.2";
-      src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/e3/e8/b3212641ee2718d556df0f23f78de8303f068fe29cdaa7a91018849582fe/PyYAML-5.1.2.tar.gz";
-        sha256 = "01adf0b6c6f61bd11af6e10ca52b7d4057dd0be0343eb9283c878cf3af56aee4";
-};
-      doCheck = commonDoCheck;
-      buildInputs = commonBuildInputs ++ [ ];
-      propagatedBuildInputs = [ ];
-      meta = with pkgs.stdenv.lib; {
-        homepage = "https://github.com/yaml/pyyaml";
-        license = licenses.mit;
-        description = "YAML parser and emitter for Python";
-      };
-    };
-
     "requests" = python.mkDerivation {
       name = "requests-2.22.0";
       src = pkgs.fetchurl {
@@ -468,22 +454,6 @@ let
         homepage = "http://python-requests.org";
         license = licenses.asl20;
         description = "Python HTTP for Humans.";
-      };
-    };
-
-    "rxpy" = python.mkDerivation {
-      name = "rxpy-0.1.0";
-      src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/64/ad/ad450332cc3541b50dc41734767610149fb39678d94a17264fca13dc8577/RXPY-0.1.0.tar.gz";
-        sha256 = "c26978f66219140844f2c2eb1c1b689bc40fa78da354fe42c160141ed68eb3a4";
-};
-      doCheck = commonDoCheck;
-      buildInputs = commonBuildInputs ++ [ ];
-      propagatedBuildInputs = [ ];
-      meta = with pkgs.stdenv.lib; {
-        homepage = "http://www.acooke.org/rxpy/";
-        license = "UNKNOWN";
-        description = "A Regular Expression Library for Python";
       };
     };
 
@@ -556,10 +526,10 @@ let
     };
 
     "urllib3" = python.mkDerivation {
-      name = "urllib3-1.25.5";
+      name = "urllib3-1.25.6";
       src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/3c/31/aa26375d7028397ffa46765f91f5ccb087d37a99437b78259eb46f275f5b/urllib3-1.25.5.tar.gz";
-        sha256 = "2f3eadfea5d92bc7899e75b5968410b749a054b492d5a6379c1344a1481bc2cb";
+        url = "https://files.pythonhosted.org/packages/ff/44/29655168da441dff66de03952880c6e2d17b252836ff1aa4421fba556424/urllib3-1.25.6.tar.gz";
+        sha256 = "9a107b99a5393caf59c7aa3c1249c16e6879447533d0887f4336dde834c7be86";
 };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs ++ [ ];

@@ -6,6 +6,8 @@ certifi==2019.9.11
 
 chardet==3.0.4
 
+confluent-kafka==1.1.0
+
 docutils==0.15.2
 
 entrypoints==0.3
@@ -24,8 +26,6 @@ jedi==0.15.1
 
 json-rpc==1.12.1
 
-kafka-python==1.4.6
-
 mccabe==0.6.1
 
 parso==0.5.1
@@ -38,11 +38,7 @@ pytest-runner==5.1
 
 pytoml==0.1.21
 
-PyYAML==5.1.2
-
 requests==2.22.0
-
-RXPY==0.1.0
 
 service-factory==0.1.5
 
@@ -52,6 +48,6 @@ uritools==2.2.0
 
 urlextract==0.13.0
 
-urllib3==1.25.5
+urllib3==1.25.6
 
 yapf==0.28.0
