@@ -45,29 +45,36 @@ import           Pipes.Kafka
 import qualified Pipes.Prelude          as P
 import qualified Pipes.Safe             as PS
 import           System.FilePath
-import           Text.Pandoc
+import           Text.Pandoc hiding (Reader, getCurrentTime)
 import qualified Text.Pandoc.Builder    as PB
 import           Text.Pandoc.Definition (Inline (..), Meta (..))
+import Control.Monad.Trans.Reader
+import Control.Monad.Trans
 
+
+data Config = Config {
+    css :: C8.ByteString
+  , template :: String
+  , time :: UTCTime
+                     } deriving (Show)
 
 processArticle
-  :: C8.ByteString
-  -> String
-  -> ConsumerRecord (Maybe C8.ByteString) (Maybe C8.ByteString)
-  -> Maybe C8.ByteString
-processArticle css template ConsumerRecord{crValue} = do
-  v <- crValue
-  article@Article{content,title,byline} <- decode $ fromStrict v
-  epub <- hush $ html2epub title byline content css template
+  :: ConsumerRecord (Maybe C8.ByteString) (Maybe C8.ByteString)
+  -> ReaderT Config Maybe C8.ByteString
+processArticle ConsumerRecord{crValue} = do
+  v <- lift crValue
+  article@Article{content,title,byline} <- lift $ decode (fromStrict v)
+  epub <- html2epub title byline content css template
   pure $ toStrict . encode $ article2epub article (epub64 epub)
 
   where
     article2epub Article{..} epub = Epub{..}
-    dummyTime = (UTCTime (ModifiedJulianDay 0) (secondsToDiffTime 0))
     epub64 = decodeUtf8 . Base64.encode . toStrict
-    html2epub title author html css template = runPure $ do
+    html2epub title author html css template = do
+      Config css template time <- ask
+      lift $ hush $ runPure $ do
       modifyPureState $ \ s ->
-        s{stFiles = insertInFileTree "epub.css" (FileInfo dummyTime css) mempty}
+        s{stFiles = insertInFileTree "epub.css" (FileInfo time css) mempty}
       readHtml def html
         >>= setMetadata title author
         >>= writeEPUB3 def { writerTemplate = (Just template) }
@@ -82,9 +89,11 @@ main :: IO ()
 main = do
   css <- BS.readFile "ebook.css"
   template <- Prelude.readFile "template.t"
-  runNoLoggingT $ PS.runSafeT $ runEffect $ pipe css template
+  time <- getCurrentTime
+  let config = Config css template time
+  runNoLoggingT $ PS.runSafeT $ runEffect $ pipe config
   where
-    pipe css template = P.for source (P.each . processArticle css template) >-> sink
+    pipe config = P.for source (P.each . flip runReaderT config . processArticle) >-> sink
     sink = kafkaSink producerProps (TopicName "epub")
     producerProps =
          Producer.brokersList [BrokerAddress "localhost:9092"]
