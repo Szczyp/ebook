@@ -1,14 +1,24 @@
 { pkgs ? import <nixpkgs> {} }:
 with pkgs;
 let
+  name = "dog";
+  version = "1.0.0";
 
   drv = buildGoModule {
-    name = "dog-1.0.0";
+    name = "${name}-${version}";
+    version = version;
     src = ./.;
     buildInputs = [ rdkafka pkg-config ];
     modSha256 = "0ny06w9ksnfb4b7nvlczlyff21g1h06h7bmhxhh4y722q8vjki21";
 
     subPackages = [ "." ];
+  };
+
+  image = dockerTools.buildLayeredImage {
+    name = name;
+    tag = "latest";
+    contents = [ cacert ];
+    config.Cmd = [ "${drv}/bin/${name}"];
   };
 
   shell = pkgs.mkShell {
@@ -18,4 +28,4 @@ let
     '';
   };
 in
-drv // { inherit shell; }
+drv // { inherit shell image; }

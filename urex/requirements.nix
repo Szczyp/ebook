@@ -19,20 +19,6 @@ let
     inherit pkgs;
     inherit (pkgs) stdenv;
     python = pkgs.python3;
-    # patching pip so it does not try to remove files when running nix-shell
-    overrides =
-      self: super: {
-        bootstrapped-pip = super.bootstrapped-pip.overrideDerivation (old: {
-          patchPhase = old.patchPhase + ''
-            if [ -e $out/${pkgs.python3.sitePackages}/pip/req/req_install.py ]; then
-              sed -i \
-                -e "s|paths_to_remove.remove(auto_confirm)|#paths_to_remove.remove(auto_confirm)|"  \
-                -e "s|self.uninstalled = paths_to_remove|#self.uninstalled = paths_to_remove|"  \
-                $out/${pkgs.python3.sitePackages}/pip/req/req_install.py
-            fi
-          '';
-        });
-      };
   };
 
   commonBuildInputs = with pkgs; [ rdkafka ];
@@ -157,10 +143,10 @@ let
     };
 
     "confluent-kafka" = python.mkDerivation {
-      name = "confluent-kafka-1.1.0";
+      name = "confluent-kafka-1.2.0";
       src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/c7/27/e7f6d54dafb050dcb66622742d8a39c5742ca6aa00c337b043738da78abf/confluent-kafka-1.1.0.tar.gz";
-        sha256 = "c8dee478a46a9352224fce1d12756cff6cf50e2684121a118141c7908ae9ed3e";
+        url = "https://files.pythonhosted.org/packages/87/49/413745588ac9f166b05886ae67769f41a6391f307145b23fa92459a4e602/confluent-kafka-1.2.0.tar.gz";
+        sha256 = "970da6d54686adc5719293c3103bf15f89cd04ec6d8c2a4fda0448f9def9c8da";
 };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs ++ [ ];

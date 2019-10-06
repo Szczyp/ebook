@@ -5,46 +5,62 @@ in {
   pkgs ? import <nixpkgs> {},
   mavenix ? import mavenix-src { inherit pkgs; },
   doCheck ? false,
-}: mavenix.buildMaven {
-  inherit doCheck;
-  infoFile = ./mavenix.lock;
+}:
+  let
+    name = "cartographer";
+    version = "1.0.0";
 
-  src = ./.;
+    drv = mavenix.buildMaven {
+      inherit doCheck;
 
-  # Add build dependencies
-  #
-  buildInputs = with pkgs; [ makeWrapper ];
+      name = "${name}-${version}";
 
-  # Set build environment variables
-  #
-  #MAVEN_OPTS = "-Dfile.encoding=UTF-8";
+      infoFile = ./mavenix.lock;
 
-  # Attributes are passed to the underlying `stdenv.mkDerivation`, so build
-  #   hooks can be set here also.
-  #
-  postInstall = ''
+      src = ./.;
+
+      # Add build dependencies
+      #
+      buildInputs = with pkgs; [ makeWrapper ];
+
+      # Set build environment variables
+      #
+      #MAVEN_OPTS = "-Dfile.encoding=UTF-8";
+
+      # Attributes are passed to the underlying `stdenv.mkDerivation`, so build
+      #   hooks can be set here also.
+      #
+      postInstall = ''
    makeWrapper ${pkgs.jdk12_headless}/bin/java $out/bin/cartographer \
      --add-flags "-jar $out/share/java/cartographer-0.1.jar"
   '';
 
-  # Add extra maven dependencies which might not have been picked up
-  #   automatically
-  #
-  #deps = [
-  #  { path = "org/group-id/artifactId/version/file.jar"; sha1 = "0123456789abcdef"; }
-  #  { path = "org/group-id/artifactId/version/file.pom"; sha1 = "123456789abcdef0"; }
-  #];
+      # Add extra maven dependencies which might not have been picked up
+      #   automatically
+      #
+      #deps = [
+      #  { path = "org/group-id/artifactId/version/file.jar"; sha1 = "0123456789abcdef"; }
+      #  { path = "org/group-id/artifactId/version/file.pom"; sha1 = "123456789abcdef0"; }
+      #];
 
-  # Add dependencies on other mavenix derivations
-  #
-  #drvs = [ (import ../other/mavenix/derivation {}) ];
+      # Add dependencies on other mavenix derivations
+      #
+      #drvs = [ (import ../other/mavenix/derivation {}) ];
 
-  # Override which maven package to build with
-  #
-  maven = pkgs.maven.overrideAttrs (_: { jdk = pkgs.jdk12_headless; });
+      # Override which maven package to build with
+      #
+      maven = pkgs.maven.overrideAttrs (_: { jdk = pkgs.jdk12_headless; });
 
-  # Override remote repository URLs and settings.xml
-  #
-  #remotes = { central = "https://repo.maven.apache.org/maven2"; };
-  #settings = ./settings.xml;
-}
+      # Override remote repository URLs and settings.xml
+      #
+      #remotes = { central = "https://repo.maven.apache.org/maven2"; };
+      #settings = ./settings.xml;
+    };
+
+    image = pkgs.dockerTools.buildLayeredImage {
+      inherit name;
+      tag = "latest";
+      config.Cmd = [ "${drv}/bin/${name}"];
+    };
+
+  in drv // { inherit image; }
