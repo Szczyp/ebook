@@ -23,9 +23,9 @@ type extracted_links struct {
 }
 
 type fetched_html struct {
-	Url string
-	From string
-	Html string
+	Url string `json:"url"`
+	From string `json:"from"`
+	Html string `json:"html"`
 }
 
 func fetch(link string) string {
@@ -54,21 +54,23 @@ func main() {
 
 	for {
 		msg, _ := consumer.ReadMessage(-1)
-		links := extracted_links{}
-		json.Unmarshal(msg.Value, &links)
-		h := fetch(links.Url)
-		html := &fetched_html{
-			Url: links.Url,
-			From: links.From,
-			Html: h}
-		json, _ := json.Marshal(html)
+		if msg != nil {
+			links := extracted_links{}
+			json.Unmarshal(msg.Value, &links)
+			h := fetch(links.Url)
+			html := &fetched_html{
+				Url: links.Url,
+				From: links.From,
+				Html: h}
+			json, _ := json.Marshal(html)
 
-		topic := "fetched_html"
-		producer.Produce(&kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-			Key: msg.Key,
-			Value: json,
-		}, nil)
+			topic := "fetched_html"
+			producer.Produce(&kafka.Message{
+				TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+				Key: msg.Key,
+				Value: json,
+			}, nil)
+		}
 	}
 
 	consumer.Close()
