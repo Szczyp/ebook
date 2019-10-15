@@ -3,7 +3,7 @@
 
 module Main where
 
-import Article
+import Hyphenated
 import Epub
 
 import           Control.Error.Util
@@ -54,24 +54,24 @@ import           Text.Pandoc.Definition     (Inline (..), Meta (..))
 
 
 data Config = Config {
-    css      :: C8.ByteString
-  , template :: String
-  , time     :: UTCTime
-  , servers  :: [BrokerAddress]
+    css      :: !C8.ByteString
+  , template :: !String
+  , time     :: !UTCTime
+  , servers  :: ![BrokerAddress]
   } deriving (Show)
 
 
-processArticle
+processHyphenated
   :: ConsumerRecord (Maybe C8.ByteString) (Maybe C8.ByteString)
   -> ReaderT Config Maybe C8.ByteString
-processArticle ConsumerRecord{crValue} = do
+processHyphenated ConsumerRecord{crValue} = do
   v <- lift crValue
-  article@Article{content,title,byline} <- lift $ decode (fromStrict v)
-  epub <- html2epub title byline content css template
+  article@Hyphenated{hyphenated,title,byline} <- lift $ decode (fromStrict v)
+  epub <- html2epub title byline hyphenated css template
   pure $ toStrict . encode $ article2epub article (epub64 epub)
 
   where
-    article2epub Article{..} epub = Epub{..}
+    article2epub Hyphenated{..} epub = Epub{..}
     epub64 = decodeUtf8 . Base64.encode . toStrict
     html2epub title author html css template = do
       Config{css, template, time} <- ask
@@ -92,8 +92,8 @@ processArticle ConsumerRecord{crValue} = do
 main :: IO ()
 main = do
   config@Config{servers} <- Config
-    <$> BS.readFile "ebook.css"
-    <*> Prelude.readFile "template.t"
+    <$> BS.readFile "data/ebook.css"
+    <*> Prelude.readFile "data/template.t"
     <*> getCurrentTime
     <*> (fmap BrokerAddress
          . splitOn ","
@@ -102,16 +102,17 @@ main = do
          <$> lookupEnv "KAFKA_BOOTSTRAP_SERVERS")
 
   let pipe = P.for source (P.each . process) >-> sink
-      process = flip runReaderT config . processArticle
+      process = flip runReaderT config . processHyphenated
       sink = kafkaSink producerProps (TopicName "epub")
       producerProps =
           Producer.brokersList servers
-        <> Producer.logLevel KafkaLogErr
+          <> Producer.logLevel KafkaLogErr
       source = kafkaSource consumerProps consumerSub (Timeout 1000)
       consumerProps =
-        brokersList servers <>
-        groupId (ConsumerGroupId "pubes") <>
-        logLevel KafkaLogErr
-      consumerSub = topics [TopicName "articles"] <> offsetReset Earliest
+        brokersList servers
+        <> groupId (ConsumerGroupId "pubes")
+        <> logLevel KafkaLogErr
+      consumerSub = topics [TopicName "hyphen"]
+                    <> offsetReset Earliest
 
   runNoLoggingT $ PS.runSafeT $ runEffect pipe

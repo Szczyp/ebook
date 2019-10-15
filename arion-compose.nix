@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  packages = (import ./default.nix {}).packages;
+  packages = (import ./. {}).packages;
 in
 {
   config.services = {
@@ -72,5 +72,27 @@ in
         KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
       };
     };
+
+    hyphe.service = {
+      useHostStore = true;
+      command = [ "${packages.hyphe}/bin/hyphe" ];
+      environment = {
+        KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+      };
+    };
+
+    # pubes = {
+    #   image = {
+    #     command = [ "${packages.pubes}/bin/pubes" ];
+    #   };
+    #   service = {
+    #     environment = {
+    #       KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+    #     };
+    #     volumes = [
+    #       "${toString ./.}/pubes/data:/data:ro"
+    #     ];
+    #   };
+    # };
   };
 }

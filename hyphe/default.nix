@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  name = "pubes";
+  name = "hyphe";
 
   src = pkgs.nix-gitignore.gitignoreSource [] ./.;
 
