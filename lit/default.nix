@@ -42,7 +42,7 @@ let
   '';
   drv = yarn2nix.mkYarnPackage {
     name = "${name}-${version}";
-    src = ./.;
+    src = pkgs.nix-gitignore.gitignoreSource [] ./.;
     packageJSON = ./package.json;
     yarnLock = ./yarn.lock;
     yarnNix = ./yarn.nix;

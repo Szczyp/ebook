@@ -30,3 +30,11 @@ consumer.on("data", function(message) {
   let resp = JSON.stringify({...article, ...request});
   producer.write(Buffer.from(resp));
 });
+
+consumer.on("error", function(err) {
+  console.error(err);
+});
+
+producer.on("error", function(err) {
+  console.error(err);
+});
