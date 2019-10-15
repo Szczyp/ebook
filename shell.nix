@@ -1,5 +1,1 @@
-{ pkgs ? import <nixpkgs> {} }:
-with pkgs;
-mkShell {
-  buildInputs = [ docker-compose mailsend-go ];
-}
+((import <nixpkgs> {}).callPackage(./.){}).shell
