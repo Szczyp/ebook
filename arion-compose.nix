@@ -42,7 +42,7 @@ in
       command = [ "${packages.cartographer}/bin/cartographer" ];
       environment = {
         KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
-        MAIL_IMAP_USER = "***REMOVED***";
+        MICRONAUT_CONFIG_FILES = "classpath:mail.yml";
       };
     };
 
