@@ -1,3 +1,4 @@
 /kafka/
 /result
 .envrc
+send-test-mail.sh
