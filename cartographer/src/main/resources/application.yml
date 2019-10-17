@@ -7,8 +7,3 @@ kafka:
   bootstrap:
     servers: localhost:9092
 ---
-mail:
-  imap:
-    host: ***REMOVED***
-    user: ***REMOVED***
-    password: ***REMOVED***

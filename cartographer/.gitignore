@@ -14,3 +14,4 @@ out/
 .envrc
 result/
 result
+src/main/resources/mail.yml
