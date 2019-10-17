@@ -31,6 +31,7 @@ in
         KAFKA_BROKER_ID = "1";
         KAFKA_LOG4J_LOGGERS = "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO";
         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = "1";
+        KAFKA_HEAP_OPTS = "-Xms256M -Xmx256M";
       };
       volumes = [
         "${toString ./.}/kafka/kafka/data:/var/lib/kafka/data"
