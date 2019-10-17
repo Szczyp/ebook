@@ -10,17 +10,17 @@ import io.micronaut.runtime.ApplicationConfiguration;
 import io.micronaut.runtime.EmbeddedApplication;
 
 @Singleton
-public class ReceivedMailProducerApplication implements EmbeddedApplication<ReceivedMailProducerApplication>, Described {
+public class CartographerApplication implements EmbeddedApplication<CartographerApplication>, Described {
 
     private final ApplicationContext context;
     private final ApplicationConfiguration configuration;
     private final MailStream mailStream;
-    private final ReceivedMailProducer producer;
+    private final CartographerProducer producer;
 
     private boolean isRunning = false;
 
-    public ReceivedMailProducerApplication(ApplicationContext context, ApplicationConfiguration configuration,
-            MailStream mailStream, ReceivedMailProducer producer) {
+    public CartographerApplication(ApplicationContext context, ApplicationConfiguration configuration,
+            MailStream mailStream, CartographerProducer producer) {
         this.context = context;
         this.configuration = configuration;
         this.mailStream = mailStream;
@@ -48,7 +48,7 @@ public class ReceivedMailProducerApplication implements EmbeddedApplication<Rece
     }
 
     @Override
-    public ReceivedMailProducerApplication start() {
+    public CartographerApplication start() {
         isRunning = true;
         mailStream.getMails().subscribe(mail -> {
             producer.send(UUID.randomUUID().toString(), mail);
@@ -57,7 +57,7 @@ public class ReceivedMailProducerApplication implements EmbeddedApplication<Rece
     }
 
     @Override
-    public ReceivedMailProducerApplication stop() {
+    public CartographerApplication stop() {
         isRunning = false;
         return this;
     }

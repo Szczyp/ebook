@@ -28,7 +28,7 @@ def main():
         'auto.offset.reset': 'earliest'
     })
 
-    consumer.subscribe(['received-mails'])
+    consumer.subscribe(['cartographer'])
 
     while True:
         msg = consumer.poll(1.0)
@@ -39,7 +39,7 @@ def main():
         links = extract_links(msg)
 
         if links['url']:
-            producer.produce('extracted-links',
+            producer.produce('urex',
                              key=msg.key(),
                              value=json.dumps(links).encode('utf8'))
 

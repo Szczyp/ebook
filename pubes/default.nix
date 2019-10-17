@@ -16,6 +16,7 @@ let
     withHoogle = true;
     packages = p: [ p.${name} ];
     buildInputs = with haskellPackages; [
+      cabal-install
       apply-refact
       hindent
       hlint

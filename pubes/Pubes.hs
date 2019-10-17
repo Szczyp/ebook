@@ -1,23 +1,24 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Hyphenated where
+module Pubes where
 
 import Data.Aeson
 import GHC.Generics
 import Data.Text
 import Data.ByteString
 
-data Hyphenated = Hyphenated {
+data Pubes = Pubes {
     url  :: Text
   , from :: Text
   , html :: Text
   , title :: Text
   , content :: Text
+  , hyphenated :: Text
   , length :: Int
   , excerpt :: Text
   , byline :: Maybe Text
   , dir :: Maybe Text
-  , hyphenated :: Text
+  , epub :: Text
   } deriving (Generic, Show)
 
-instance ToJSON Hyphenated
+instance ToJSON Pubes

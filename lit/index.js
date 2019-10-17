@@ -12,13 +12,13 @@ const consumer = Kafka.KafkaConsumer.createReadStream({
   "group.id": "lit",
   "metadata.broker.list": broker
 }, {}, {
-  topics: [ "fetched_html" ]
+  topics: [ "dog" ]
 });
 
 const producer = Kafka.Producer.createWriteStream({
   "metadata.broker.list": broker
 }, {}, {
-  topic: "articles"
+  topic: "lit"
 });
 
 consumer.on("data", function(message) {

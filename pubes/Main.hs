@@ -3,8 +3,8 @@
 
 module Main where
 
-import Hyphenated
-import Epub
+import Pubes
+import Hyphe
 
 import           Control.Error.Util
 import           Control.Monad              (void)
@@ -41,6 +41,7 @@ import           Kafka.Consumer
     )
 import qualified Kafka.Producer             as Producer
 import           Kafka.Types                (KafkaLogLevel (..))
+import           Paths_pubes
 import           Pipes                      (lift, runEffect, (>->))
 import qualified Pipes                      as P
 import           Pipes.Kafka
@@ -48,7 +49,8 @@ import qualified Pipes.Prelude              as P
 import qualified Pipes.Safe                 as PS
 import           System.Environment         (lookupEnv)
 import           System.FilePath
-import           Text.Pandoc                hiding (getCurrentTime, lookupEnv)
+import           Text.Pandoc                hiding
+    (getCurrentTime, getDataFileName, lookupEnv)
 import qualified Text.Pandoc.Builder        as PB
 import           Text.Pandoc.Definition     (Inline (..), Meta (..))
 
@@ -61,17 +63,17 @@ data Config = Config {
   } deriving (Show)
 
 
-processHyphenated
+processHyphe
   :: ConsumerRecord (Maybe C8.ByteString) (Maybe C8.ByteString)
   -> ReaderT Config Maybe C8.ByteString
-processHyphenated ConsumerRecord{crValue} = do
+processHyphe ConsumerRecord{crValue} = do
   v <- lift crValue
-  article@Hyphenated{hyphenated,title,byline} <- lift $ decode (fromStrict v)
+  hyphe@Hyphe{hyphenated,title,byline} <- lift $ decode (fromStrict v)
   epub <- html2epub title byline hyphenated css template
-  pure $ toStrict . encode $ article2epub article (epub64 epub)
+  pure $ toStrict . encode $ hyphe2pubes hyphe (epub64 epub)
 
   where
-    article2epub Hyphenated{..} epub = Epub{..}
+    hyphe2pubes Hyphe{..} epub = Pubes{..}
     epub64 = decodeUtf8 . Base64.encode . toStrict
     html2epub title author html css template = do
       Config{css, template, time} <- ask
@@ -92,8 +94,8 @@ processHyphenated ConsumerRecord{crValue} = do
 main :: IO ()
 main = do
   config@Config{servers} <- Config
-    <$> BS.readFile "data/ebook.css"
-    <*> Prelude.readFile "data/template.t"
+    <$> (BS.readFile =<< getDataFileName "ebook.css")
+    <*> (Prelude.readFile =<< getDataFileName "template.t")
     <*> getCurrentTime
     <*> (fmap BrokerAddress
          . splitOn ","
@@ -102,8 +104,8 @@ main = do
          <$> lookupEnv "KAFKA_BOOTSTRAP_SERVERS")
 
   let pipe = P.for source (P.each . process) >-> sink
-      process = flip runReaderT config . processHyphenated
-      sink = kafkaSink producerProps (TopicName "epub")
+      process = flip runReaderT config . processHyphe
+      sink = kafkaSink producerProps (TopicName "pubes")
       producerProps =
           Producer.brokersList servers
           <> Producer.logLevel KafkaLogErr
@@ -112,7 +114,7 @@ main = do
         brokersList servers
         <> groupId (ConsumerGroupId "pubes")
         <> logLevel KafkaLogErr
-      consumerSub = topics [TopicName "hyphen"]
+      consumerSub = topics [TopicName "hyphe"]
                     <> offsetReset Earliest
 
   runNoLoggingT $ PS.runSafeT $ runEffect pipe

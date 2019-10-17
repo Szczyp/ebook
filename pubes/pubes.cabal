@@ -14,9 +14,12 @@ maintainer:          qb@szczyp.com
 -- category:
 build-type:          Simple
 
+data-dir:      data
+data-files:    ebook.css, template.t
+
 executable pubes
   main-is:             Main.hs
-  other-modules:       Hyphenated, Epub
+  other-modules:       Hyphe, Pubes, Paths_pubes
   -- other-extensions:
   build-depends:       base >=4.12 && < 4.13
                      , pandoc >=2.7 && < 2.8

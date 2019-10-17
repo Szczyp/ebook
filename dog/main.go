@@ -8,21 +8,12 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-type Fetch struct {
-	source string
-	target string
-}
-
-type Release struct {
-	target string
-}
-
-type extracted_links struct {
+type urex struct {
 	Url string
 	From string
 }
 
-type fetched_html struct {
+type dog struct {
 	Url string `json:"url"`
 	From string `json:"from"`
 	Html string `json:"html"`
@@ -43,28 +34,28 @@ func main() {
 
 	consumer, _ := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": servers,
-		"group.id":          "pack",
+		"group.id":          "dog",
 	})
 
 	producer, _ := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": servers,
 	})
 
-	consumer.Subscribe( "extracted-links", nil)
+	consumer.Subscribe("urex", nil)
 
 	for {
 		msg, _ := consumer.ReadMessage(-1)
 		if msg != nil {
-			links := extracted_links{}
+			links := urex{}
 			json.Unmarshal(msg.Value, &links)
 			h := fetch(links.Url)
-			html := &fetched_html{
+			html := &dog{
 				Url: links.Url,
 				From: links.From,
 				Html: h}
 			json, _ := json.Marshal(html)
 
-			topic := "fetched_html"
+			topic := "dog"
 			producer.Produce(&kafka.Message{
 				TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 				Key: msg.Key,

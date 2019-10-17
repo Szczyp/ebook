@@ -3,8 +3,8 @@
 
 module Main where
 
-import Article
-import Hyphenated
+import Lit
+import Hyphe
 
 import qualified Control.Monad.Logger   as Logger
 import qualified Data.Aeson             as Aeson
@@ -47,15 +47,15 @@ hyphenateContent = TagSoupTree.renderTree . TagSoupTree.transformTree f . TagSou
     f x                       = [x]
 
 
-processArticle
+processLit
   :: KafkaConsumer.ConsumerRecord (Maybe Char8.ByteString) (Maybe Char8.ByteString)
   -> Maybe Char8.ByteString
-processArticle KafkaConsumer.ConsumerRecord{KafkaConsumer.crValue} = do
+processLit KafkaConsumer.ConsumerRecord{KafkaConsumer.crValue} = do
   v <- crValue
-  article@Article{content} <- Aeson.decode (ByteString.fromStrict v)
-  pure $ ByteString.toStrict . Aeson.encode . article2hyphenated (hyphenateContent content) $ article
+  lit@Lit{content} <- Aeson.decode (ByteString.fromStrict v)
+  pure $ ByteString.toStrict . Aeson.encode . lit2hyphe (hyphenateContent content) $ lit
   where
-    article2hyphenated hyphenated Article{..} = Hyphenated{..}
+    lit2hyphe hyphenated Lit{..} = Hyphe{..}
 
 
 main :: IO ()
@@ -66,8 +66,8 @@ main = do
              .  Maybe.fromMaybe "localhost:9092"
              <$> Environment.lookupEnv "KAFKA_BOOTSTRAP_SERVERS"
 
-  let pipe = Pipes.for source (Pipes.each . processArticle) >-> sink
-      sink = PipesKafka.kafkaSink producerProps (KafkaProducer.TopicName "hyphen")
+  let pipe = Pipes.for source (Pipes.each . processLit) >-> sink
+      sink = PipesKafka.kafkaSink producerProps (KafkaProducer.TopicName "hyphe")
       producerProps =
         KafkaProducer.brokersList servers
         <> KafkaProducer.logLevel KafkaLogErr
@@ -76,7 +76,7 @@ main = do
         KafkaConsumer.brokersList servers
         <> KafkaConsumer.groupId (KafkaConsumer.ConsumerGroupId "hyphe")
         <> KafkaConsumer.logLevel KafkaLogErr
-      consumerSub = KafkaConsumer.topics [KafkaConsumer.TopicName "articles"]
+      consumerSub = KafkaConsumer.topics [KafkaConsumer.TopicName "lit"]
                     <> KafkaConsumer.offsetReset KafkaConsumer.Earliest
 
   Logger.runNoLoggingT $ PipesSafe.runSafeT $ Pipes.runEffect pipe
