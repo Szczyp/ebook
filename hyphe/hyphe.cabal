@@ -14,7 +14,7 @@ build-type:          Simple
 
 executable hyphe
   main-is:             Main.hs
-  other-modules:       Lit, Hyphe
+  other-modules:       Parrot, Hyphe
   -- other-extensions:
   build-depends:       base >=4.12 && < 4.13
                      , hyphenation >= 0.8 && < 0.9

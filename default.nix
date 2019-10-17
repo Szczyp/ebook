@@ -12,6 +12,7 @@ let
     ./urex
     ./dog
     ./lit
+    ./parrot
     ./hyphe
     ./pubes
   ];

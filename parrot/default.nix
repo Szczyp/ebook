@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  name = "lit";
+  name = "parrot";
   version = "1.0.0";
   nodejs = pkgs.nodejs-10_x;
   nodeHeaders = pkgs.fetchurl {

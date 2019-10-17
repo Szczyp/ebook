@@ -1,0 +1,11 @@
+{
+  "name": "parrot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "bin": "index.js",
+  "dependencies": {
+    "node-html-parser": "1.1.16",
+    "node-rdkafka": "Szczyp/node-rdkafka",
+    "franc": "4.1.0"
+  }
+}

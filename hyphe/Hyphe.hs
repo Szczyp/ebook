@@ -8,15 +8,16 @@ import Data.Text
 import Data.ByteString
 
 data Hyphe = Hyphe {
-    url  :: Text
-  , from :: Text
-  , html :: Text
-  , title :: Text
-  , content :: Text
-  , length :: Int
-  , excerpt :: Text
-  , byline :: Maybe Text
-  , dir :: Maybe Text
+    url        :: Text
+  , from       :: Text
+  , html       :: Text
+  , title      :: Text
+  , content    :: Text
+  , length     :: Int
+  , excerpt    :: Text
+  , byline     :: Maybe Text
+  , dir        :: Maybe Text
+  , lang       :: Text
   , hyphenated :: Text
   } deriving (Generic, Show)
 

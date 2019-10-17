@@ -74,6 +74,15 @@ in
       };
     };
 
+    parrot = {
+      image = {
+        command = [ "${packages.parrot}/bin/parrot" ];
+      };
+      service.environment = {
+        KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+      };
+    };
+
     hyphe.service = {
       useHostStore = true;
       command = [ "${packages.hyphe}/bin/hyphe" ];
