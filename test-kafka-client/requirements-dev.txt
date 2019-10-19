@@ -1,8 +1,10 @@
-jedi
-service_factory
-json-rpc
-flake8
-yapf
-autoflake
+python-language-server
+rope
+pyflakes
+mccabe
+pycodestyle
+pydocstyle
+pyls-isort
+pyls-mypy
+pyls-black
 pytest-runner
-importmagic3

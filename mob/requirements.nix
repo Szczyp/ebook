@@ -177,22 +177,6 @@ let
       };
     };
 
-    "idna" = python.mkDerivation {
-      name = "idna-2.8";
-      src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/ad/13/eb56951b6f7950cadb579ca166e448ba77f9d24efc03edd7e55fa57d04b7/idna-2.8.tar.gz";
-        sha256 = "c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407";
-};
-      doCheck = commonDoCheck;
-      buildInputs = commonBuildInputs ++ [ ];
-      propagatedBuildInputs = [ ];
-      meta = with pkgs.stdenv.lib; {
-        homepage = "https://github.com/kjd/idna";
-        license = licenses.bsdOriginal;
-        description = "Internationalized Domain Names in Applications (IDNA)";
-      };
-    };
-
     "importlib-metadata" = python.mkDerivation {
       name = "importlib-metadata-0.23";
       src = pkgs.fetchurl {
@@ -609,42 +593,6 @@ let
         homepage = "https://github.com/python/typing/blob/master/typing_extensions/README.rst";
         license = "PSF";
         description = "Backported and Experimental Type Hints for Python 3.5+";
-      };
-    };
-
-    "uritools" = python.mkDerivation {
-      name = "uritools-2.2.0";
-      src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/ab/1c/e9aa4a907806743298171510042447adc20cd5cf5b95436206a067e14496/uritools-2.2.0.tar.gz";
-        sha256 = "80e8e23cafad54fd85811b5d9ba0fc595d933f5727c61c3937945eec09f99e2b";
-};
-      doCheck = commonDoCheck;
-      buildInputs = commonBuildInputs ++ [ ];
-      propagatedBuildInputs = [ ];
-      meta = with pkgs.stdenv.lib; {
-        homepage = "https://github.com/tkem/uritools/";
-        license = licenses.mit;
-        description = "RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse";
-      };
-    };
-
-    "urlextract" = python.mkDerivation {
-      name = "urlextract-0.13.0";
-      src = pkgs.fetchurl {
-        url = "https://files.pythonhosted.org/packages/5b/4b/ff87b5c2458f6c75ccc5a574f49ca117bd7f9bf057a09e1442d8ce165766/urlextract-0.13.0.tar.gz";
-        sha256 = "3b3c013161fa13def54b4f05d3c3c26637624973e8e12ce5b1a6480fd305bde3";
-};
-      doCheck = commonDoCheck;
-      buildInputs = commonBuildInputs ++ [ ];
-      propagatedBuildInputs = [
-        self."appdirs"
-        self."idna"
-        self."uritools"
-      ];
-      meta = with pkgs.stdenv.lib; {
-        homepage = "https://github.com/lipoja/URLExtract";
-        license = licenses.mit;
-        description = "Collects and extracts URLs from given text.";
       };
     };
 

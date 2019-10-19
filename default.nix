@@ -15,6 +15,7 @@ let
     ./parrot
     ./hyphe
     ./pubes
+    ./mob
   ];
 
   packages = listToAttrs (map (path: { name = "${baseNameOf path}"; value = mkPkg path; }) projects);

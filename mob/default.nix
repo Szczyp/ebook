@@ -10,18 +10,23 @@ let
     sha256 = "0jnxp76j4i4pjyqsyrzzb54nlhx6mqf7rhcix61pv1ghiq1l7lv2";
   }) {};
 
-  name = "test-kafka-client";
+  readLines = file: with pkgs.lib; splitString "\n" (removeSuffix "\n" (builtins.readFile file));
+  fromRequirementsFile = file: pythonPackages:
+    builtins.map (name: builtins.getAttr name pythonPackages)
+      (builtins.filter (l: l != "") (readLines file));
+
+  name = "mob";
   version = "1.0.0";
 
   drv = python.mkDerivation {
     name = "${name}-${version}";
     src = ./.;
     buildInputs = [];
-    propagatedBuildInputs = (builtins.attrValues python.packages);
+    propagatedBuildInputs = (fromRequirementsFile ./requirements.txt python.packages) ++ [ pkgs.kindlegen ];
   };
 
   shell = pkgs.mkShell {
-    buildInputs = [ python.interpreter pypi2nix pkgs.calibre ];
+    buildInputs = [ python.interpreter pypi2nix ];
   };
 
   image = pkgs.dockerTools.buildLayeredImage {

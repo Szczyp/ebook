@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-import sys
-from confluent_kafka import Consumer, Producer
+
 import json
+import sys
+
+import confluent_kafka
+
+
+consumer = confluent_kafka.Consumer(
+    {
+        "bootstrap.servers": "localhost:9092",
+        "group.id": "test-client",
+        "auto.offset.reset": "earliest",
+    }
+)
+
 
 def pipe():
-    consumer = Consumer({
-        'bootstrap.servers': "localhost:9092",
-        'group.id': 'test-client',
-        'auto.offset.reset': 'earliest'
-    })
-
     consumer.subscribe(
-        ['cartographer',
-         'urex',
-         'dog',
-         'lit',
-         'parrot',
-         'hyphe',
-         'pubes'])
+        ["cartographer", "urex", "dog", "lit", "parrot", "hyphe", "pubes", "mob"]
+    )
 
     while True:
         msg = consumer.poll(1.0)
@@ -28,14 +29,8 @@ def pipe():
         print(msg.topic())
 
 
-def out():
-    consumer = Consumer({
-        'bootstrap.servers': "localhost:9092",
-        'group.id': 'test-client',
-        'auto.offset.reset': 'earliest'
-    })
-
-    consumer.subscribe(['pubes'])
+def out(topic):
+    consumer.subscribe([topic])
 
     while True:
         msg = consumer.poll(1.0)
@@ -45,6 +40,8 @@ def out():
 
         print(json.dumps(json.loads(msg.value())))
 
+        break
+
 
 def main():
     if len(sys.argv) > 1:
@@ -52,9 +49,13 @@ def main():
         if cmd == "pipe":
             pipe()
         elif cmd == "out":
-            out()
+            if len(sys.argv) > 2:
+                out(sys.argv[2])
+            else:
+                print("topic required")
         else:
             print("unknown cmd")
+
 
 if __name__ == "__main__":
     main()

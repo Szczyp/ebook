@@ -104,5 +104,15 @@ in
     #     ];
     #   };
     # };
+
+    mob.service = {
+      useHostStore = true;
+      command = [ "${packages.mob}/bin/mob" ];
+      tmpfs = [ "/tmp" ];
+      environment = {
+        KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+      };
+    };
+
   };
 }

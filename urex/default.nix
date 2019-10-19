@@ -3,6 +3,18 @@
 let
   python = import ./requirements.nix { inherit pkgs; };
 
+  pypi2nix = pkgs.pythonPackages.callPackage(pkgs.fetchFromGitHub {
+    owner  = "nix-community";
+    repo   = "pypi2nix";
+    rev    = "bdb7420ce6650be80957ec9be10480e6eacacd27";
+    sha256 = "0jnxp76j4i4pjyqsyrzzb54nlhx6mqf7rhcix61pv1ghiq1l7lv2";
+  }) {};
+
+  readLines = file: with pkgs.lib; splitString "\n" (removeSuffix "\n" (builtins.readFile file));
+  fromRequirementsFile = file: pythonPackages:
+    builtins.map (name: builtins.getAttr name pythonPackages)
+      (builtins.filter (l: l != "") (readLines file));
+
   name = "urex";
   version = "1.0.0";
 
@@ -10,11 +22,11 @@ let
     name = "${name}-${version}";
     src = ./.;
     buildInputs = [];
-    propagatedBuildInputs = (builtins.attrValues python.packages);
+    propagatedBuildInputs = (fromRequirementsFile ./requirements.txt python.packages);
   };
 
   shell = pkgs.mkShell {
-    buildInputs = [ python.interpreter ];
+    buildInputs = [ python.interpreter pypi2nix ];
   };
 
   image = pkgs.dockerTools.buildLayeredImage {
