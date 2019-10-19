@@ -14,8 +14,8 @@ in
         ZOO_SERVERS = "server.1=zoo:2888:3888";
       };
       volumes = [
-        "${toString ./.}/kafka/zoo/data:/data"
-        "${toString ./.}/kafka/zoo/datalog:/datalog"
+        "${toString ./.}/data/zoo/data:/data"
+        "${toString ./.}/data/zoo/datalog:/datalog"
       ];
     };
 
@@ -34,7 +34,7 @@ in
         KAFKA_HEAP_OPTS = "-Xms256M -Xmx256M";
       };
       volumes = [
-        "${toString ./.}/kafka/kafka/data:/var/lib/kafka/data"
+        "${toString ./.}/data/kafka/data:/var/lib/kafka/data"
       ];
     };
 

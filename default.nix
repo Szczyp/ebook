@@ -7,15 +7,15 @@ let
 
   mkPkg = path: callPackage path { inherit pkgs; };
 
-  projects = [
-    ./cartographer
-    ./urex
-    ./dog
-    ./lit
-    ./parrot
-    ./hyphe
-    ./pubes
-    ./mob
+  projects = map (s: ./services + s) [
+    "/cartographer"
+    "/urex"
+    "/dog"
+    "/lit"
+    "/parrot"
+    "/hyphe"
+    "/pubes"
+    "/mob"
   ];
 
   packages = listToAttrs (map (path: { name = "${baseNameOf path}"; value = mkPkg path; }) projects);
