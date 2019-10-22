@@ -11,7 +11,7 @@ const consumer = Kafka.KafkaConsumer.createReadStream({
   "group.id": "parrot",
   "metadata.broker.list": broker
 }, {}, {
-  topics: [ "lit" ]
+  topics: ["lit"]
 });
 
 const producer = Kafka.Producer.createWriteStream({

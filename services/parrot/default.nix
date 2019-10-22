@@ -57,7 +57,9 @@ let
     };
   };
   shell = pkgs.mkShell {
-    buildInputs = with pkgs; [ python binutils gcc gnumake ] ++ [ nodejs yarn yarn2nix.yarn2nix yarn-install ];
+    buildInputs = with pkgs; [ python binutils gcc gnumake ]
+                             ++ [ nodejs yarn yarn2nix.yarn2nix yarn-install ]
+                             ++ (with nodePackages; [ typescript typescript-language-server ]);
   };
   image = pkgs.dockerTools.buildLayeredImage {
     inherit name;

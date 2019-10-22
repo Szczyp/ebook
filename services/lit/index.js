@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const Kafka = require("node-rdkafka");
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+const { JSDOM } = require("jsdom");
 const Readability = require("readability");
 const process = require("process");
 
