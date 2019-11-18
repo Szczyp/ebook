@@ -5,7 +5,7 @@ let
   nodejs = pkgs.nodejs-10_x;
   nodeHeaders = pkgs.fetchurl {
     url = "https://nodejs.org/download/release/v${nodejs.version}/node-v${nodejs.version}-headers.tar.gz";
-    sha256 = "0m2yp73rig154iazvs9d1zmi2k32lci5i76pz4idkxg0pzqx2089";
+    sha256 = "1g6zi96k8sbim8wa8rzskxy44mgpcv1mn2bs8p4mq36w3kwglwyj";
   };
   rdkafka = with pkgs; stdenv.mkDerivation rec {
     pname = "rdkafka";
