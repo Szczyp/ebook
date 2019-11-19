@@ -41,13 +41,12 @@ import           Kafka.Consumer
     )
 import qualified Kafka.Producer             as Producer
 import           Kafka.Types                (KafkaLogLevel (..))
-import           Paths_pubes
 import           Pipes                      (lift, runEffect, (>->))
 import qualified Pipes                      as P
 import           Pipes.Kafka
 import qualified Pipes.Prelude              as P
 import qualified Pipes.Safe                 as PS
-import           System.Environment         (lookupEnv)
+import           System.Environment         (lookupEnv, getExecutablePath)
 import           System.FilePath
 import           Text.Pandoc                hiding
     (getCurrentTime, getDataFileName, lookupEnv)
@@ -93,9 +92,10 @@ processHyphe ConsumerRecord{crValue} = do
 
 main :: IO ()
 main = do
+  path <- takeDirectory <$> getExecutablePath
   config@Config{servers} <- Config
-    <$> (BS.readFile =<< getDataFileName "ebook.css")
-    <*> (Prelude.readFile =<< getDataFileName "template.t")
+    <$> BS.readFile (path </> "data/ebook.css")
+    <*> Prelude.readFile (path </> "data/template.t")
     <*> getCurrentTime
     <*> (fmap BrokerAddress
          . splitOn ","

@@ -4,9 +4,14 @@ let
 
   src = pkgs.nix-gitignore.gitignoreSource [] ./.;
 
-  haskellPackages = pkgs.haskell.packages.ghc865.override {
+  haskellPackages = with pkgs.haskell; packages.ghc865.override {
     overrides = self: super: {
-      ${name} = self.callCabal2nix name src {};
+      ${name} = lib.overrideCabal (self.callCabal2nix name src {}) (drv: {
+        postInstall = ''
+          cp -r data $out/bin
+        '';
+      });
+      hw-kafka-client = lib.dontCheck (self.callHackage "hw-kafka-client" "2.6.1" {});
     };
   };
 
@@ -23,14 +28,9 @@ let
       stylish-haskell
       hasktags
       hoogle
+      cabal2nix
       (import (builtins.fetchTarball "https://github.com/hercules-ci/ghcide-nix/tarball/master") {}).ghcide-ghc865
     ];
   };
-
-  image = pkgs.dockerTools.buildLayeredImage {
-    inherit name;
-    tag = "latest";
-    config.Cmd = [ "${drv}/bin/${name}"];
-  };
 in
-drv // { inherit shell image; }
+drv // { inherit shell; }

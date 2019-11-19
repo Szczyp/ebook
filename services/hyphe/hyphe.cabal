@@ -19,7 +19,7 @@ executable hyphe
   build-depends:       base >=4.12 && < 4.13
                      , hyphenation >= 0.8 && < 0.9
                      , tagsoup >= 0.14 && < 0.15
-                     , hw-kafka-client >= 2.6 && < 2.7
+                     , hw-kafka-client >= 2.6.1 && < 2.7
                      , pipes >= 4.3 && < 4.4
                      , pipes-safe >= 2.3 && <  2.4
                      , pipes-kafka >= 0.2 && < 0.3

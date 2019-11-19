@@ -1,36 +1,49 @@
 #!/usr/bin/env python3
 
 import json
+import os
 import sys
+import subprocess
 
 import confluent_kafka
 
+servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS") or "localhost:9092"
 
 consumer = confluent_kafka.Consumer(
     {
-        "bootstrap.servers": "localhost:9092",
+        "bootstrap.servers": servers,
         "group.id": "test-client",
         "auto.offset.reset": "earliest",
     }
 )
 
 
-def pipe():
-    consumer.subscribe(
-        ["cartographer", "urex", "dog", "lit", "parrot", "hyphe", "pubes", "mob"]
-    )
+def send_test_mail():
+    subprocess.Popen(["./send-test-mail.sh"])
 
-    while True:
+
+def pipe():
+    topics = ["cartographer", "urex", "dog", "lit", "parrot", "hyphe", "pubes", "mob"]
+    consumer.subscribe(topics)
+    results = []
+
+    send_test_mail()
+
+    while set(topics) != set(results):
         msg = consumer.poll(1.0)
 
         if msg is None:
             continue
 
-        print(msg.topic())
+        results.append(msg.topic())
+
+    print("OK.")
 
 
 def out(topic):
     consumer.subscribe([topic])
+
+    send_test_mail()
 
     while True:
         msg = consumer.poll(1.0)

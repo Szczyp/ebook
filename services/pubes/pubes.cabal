@@ -14,17 +14,14 @@ maintainer:          qb@szczyp.com
 -- category:
 build-type:          Simple
 
-data-dir:      data
-data-files:    ebook.css, template.t
-
 executable pubes
   main-is:             Main.hs
-  other-modules:       Hyphe, Pubes, Paths_pubes
+  other-modules:       Hyphe, Pubes
   -- other-extensions:
   build-depends:       base >=4.12 && < 4.13
                      , pandoc >=2.7 && < 2.8
                      , pandoc-types >= 1.17 && < 1.18
-                     , hw-kafka-client >= 2.6 && < 2.7
+                     , hw-kafka-client >= 2.6.1 && < 2.7
                      , pipes >= 4.3 && < 4.4
                      , pipes-safe >= 2.3 && < 2.4
                      , pipes-kafka >= 0.2 && < 0.3

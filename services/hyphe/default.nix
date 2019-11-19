@@ -7,6 +7,7 @@ let
   haskellPackages = pkgs.haskell.packages.ghc865.override {
     overrides = self: super: {
       ${name} = self.callCabal2nix name src {};
+      hw-kafka-client = with pkgs.haskell.lib; dontCheck (self.callHackage "hw-kafka-client" "2.6.1" {});
     };
   };
 
@@ -16,12 +17,14 @@ let
     withHoogle = true;
     packages = p: [ p.${name} ];
     buildInputs = with haskellPackages; [
+      cabal-install
       apply-refact
       hindent
       hlint
       stylish-haskell
       hasktags
       hoogle
+      cabal2nix
       (import (builtins.fetchTarball "https://github.com/hercules-ci/ghcide-nix/tarball/master") {}).ghcide-ghc865
     ];
   };

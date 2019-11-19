@@ -17,11 +17,11 @@ let
     name = "${name}-${version}";
     src = ./.;
     buildInputs = [];
-    propagatedBuildInputs = (builtins.attrValues python.packages);
+    propagatedBuildInputs = (builtins.attrValues python.packages) ++ [ pkgs.mailsend-go ];
   };
 
   shell = pkgs.mkShell {
-    buildInputs = [ python.interpreter pypi2nix pkgs.calibre ];
+    buildInputs = [ python.interpreter pypi2nix pkgs.calibre pkgs.mailsend-go ];
   };
 
   image = pkgs.dockerTools.buildLayeredImage {

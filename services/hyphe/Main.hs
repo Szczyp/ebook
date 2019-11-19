@@ -6,6 +6,7 @@ module Main where
 import Hyphe
 import Parrot
 
+import Prelude hiding (length)
 import qualified Control.Monad.Logger      as Logger
 import qualified Data.Aeson                as Aeson
 import qualified Data.ByteString.Char8     as Char8
@@ -13,19 +14,15 @@ import qualified Data.ByteString.Lazy      as ByteString
 import qualified Data.Maybe                as Maybe
 import           Data.Text                 (Text)
 import qualified Data.Text                 as Text
-import qualified Data.Text.IO              as TextIO
-import qualified Data.Text.Lazy            as TextLazy
 import qualified Kafka.Consumer            as KafkaConsumer
 import qualified Kafka.Producer            as KafkaProducer
 import           Kafka.Types               (KafkaLogLevel (..))
 import           Pipes                     ((>->))
 import qualified Pipes
 import qualified Pipes.Kafka               as PipesKafka
-import qualified Pipes.Prelude             as PipesPrelude
 import qualified Pipes.Safe                as PipesSafe
 import qualified System.Environment        as Environment
 import           Text.HTML.TagSoup         (Tag (..))
-import qualified Text.HTML.TagSoup         as TagSoup
 import           Text.HTML.TagSoup.Tree    (TagTree (..))
 import qualified Text.HTML.TagSoup.Tree    as TagSoupTree
 import qualified Text.Hyphenation          as Hyphenation
@@ -52,7 +49,7 @@ hyphenate lang text = case parrot2Language lang of
     parse l = TagSoupTree.renderTree . TagSoupTree.transformTree (f l) . TagSoupTree.parseTree
 
     f l (TagLeaf (TagText txt)) = [TagLeaf (TagText $ hyphe l txt)]
-    f l x                       = [x]
+    f _ x                       = [x]
 
 
 parrot2Language :: Text -> Maybe Language
