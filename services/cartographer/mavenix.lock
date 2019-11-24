@@ -1,9 +1,9 @@
 {
-  "name": "cartographer-0.1",
+  "name": "cartographer-1.0.0",
   "groupId": "cartographer",
   "artifactId": "cartographer",
-  "version": "0.1",
-  "submodules": [{"name":"cartographer-0.1","groupId":"cartographer","artifactId":"cartographer","version":"0.1","path":"."}],
+  "version": "1.0.0",
+  "submodules": [{"name":"cartographer-1.0.0","groupId":"cartographer","artifactId":"cartographer","version":"1.0.0","path":"."}],
   "deps": [ 
     {"path":"asm/asm/3.3.1/asm-3.3.1.jar","sha1":"1d5f20b4ea675e6fab6ab79f1cd60ec268ddc015"},
     {"path":"asm/asm/3.3.1/asm-3.3.1.pom","sha1":"bbcde0189656fa6cc671f27437432ac7e7f95673"},

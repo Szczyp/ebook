@@ -9,5 +9,5 @@ let
     }) {}).cli;
 in
 mkShell {
-  buildInputs = [ openjdk12_headless maven mavenix vscode ];
+  buildInputs = [ adoptopenjdk-bin maven mavenix ];
 }

@@ -17,7 +17,7 @@ in {
 
       infoFile = ./mavenix.lock;
 
-      src = ./.;
+      src = pkgs.nix-gitignore.gitignoreSource [] ./.;
 
       # Add build dependencies
       #
@@ -31,9 +31,9 @@ in {
       #   hooks can be set here also.
       #
       postInstall = ''
-   makeWrapper ${pkgs.jdk12_headless}/bin/java $out/bin/cartographer \
-     --add-flags "-jar $out/share/java/cartographer-0.1.jar"
-  '';
+        makeWrapper ${pkgs.adoptopenjdk-jre-bin}/bin/java $out/bin/cartographer \
+          --add-flags "-jar $out/share/java/${name}-${version}.jar"
+      '';
 
       # Add extra maven dependencies which might not have been picked up
       #   automatically
@@ -49,7 +49,7 @@ in {
 
       # Override which maven package to build with
       #
-      maven = pkgs.maven.overrideAttrs (_: { jdk = pkgs.jdk12_headless; });
+      maven = pkgs.maven.overrideAttrs (_: { jdk = pkgs.adoptopenjdk-bin; });
 
       # Override remote repository URLs and settings.xml
       #
