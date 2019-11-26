@@ -31,7 +31,7 @@ in {
       #   hooks can be set here also.
       #
       postInstall = ''
-        makeWrapper ${pkgs.adoptopenjdk-jre-bin}/bin/java $out/bin/cartographer \
+        makeWrapper ${pkgs.adoptopenjdk-jre-bin}/bin/java $out/bin/${name} \
           --add-flags "-jar $out/share/java/${name}-${version}.jar"
       '';
 

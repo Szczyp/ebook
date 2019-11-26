@@ -1,29 +1,25 @@
-FROM haskell:8.6.5 AS build
+FROM nixos/nix:2.3 AS base
+
+RUN nix-channel --update
+
+FROM base AS build
 
 WORKDIR /opt/pubes
 
-RUN echo "deb http://deb.debian.org/debian stretch-backports main contrib non-free" > /etc/apt/sources.list.d/stretch-backports.list
+COPY pubes.cabal default.nix .gitignore /opt/pubes/
 
-RUN apt-get update && apt-get -y install librdkafka-dev/stretch-backports c2hs
-
-RUN cabal update
-
-COPY pubes.cabal /opt/pubes/pubes.cabal
-
-RUN cabal install --only-dependencies -j4
+RUN nix-build -A buildEnv
 
 COPY *.hs /opt/pubes/
 
-RUN cabal build
-
-FROM debian:stretch-slim
-
-RUN echo "deb http://deb.debian.org/debian stretch-backports main contrib non-free" > /etc/apt/sources.list.d/stretch-backports.list
-
-RUN apt-get update && apt-get -y install librdkafka-dev/stretch-backports libgmp-dev libffi-dev libncurses-dev libtinfo5
-
-COPY --from=build /opt/pubes/dist/build/pubes/pubes /opt/pubes/
-
 COPY data /opt/pubes/data
+
+RUN nix-build
+
+FROM base
+
+RUN nix-env -iA nixpkgs.gmp nixpkgs.rdkafka nixpkgs.zlib nixpkgs.lua5_3 nixpkgs.libffi
+
+COPY --from=build /opt/pubes/result/bin /opt/pubes
 
 ENTRYPOINT [ "/opt/pubes/pubes" ]

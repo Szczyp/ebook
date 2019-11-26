@@ -1,5 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields, NamedFieldPuns, OverloadedStrings,
-             RecordWildCards, StrictData #-}
+             BangPatterns, RecordWildCards, StrictData #-}
 
 module Main where
 
@@ -13,6 +13,7 @@ import           Control.Monad.Logger       (runNoLoggingT, runStdoutLoggingT)
 import           Control.Monad.Trans.Reader
 import           Data.Aeson
 import qualified Data.ByteString            as BS
+import qualified Data.ByteString.UTF8            as BSUTF8
 import qualified Data.ByteString.Base64     as Base64
 import qualified Data.ByteString.Char8      as C8
 import           Data.ByteString.Lazy       (ByteString, fromStrict, toStrict)
@@ -93,9 +94,9 @@ processHyphe ConsumerRecord{crValue} = do
 main :: IO ()
 main = do
   path <- takeDirectory <$> getExecutablePath
-  config@Config{servers} <- Config
+  !config@Config{servers} <- Config
     <$> BS.readFile (path </> "data/ebook.css")
-    <*> Prelude.readFile (path </> "data/template.t")
+    <*> (BSUTF8.toString <$> BS.readFile (path </> "data/template.t"))
     <*> getCurrentTime
     <*> (fmap BrokerAddress
          . splitOn ","

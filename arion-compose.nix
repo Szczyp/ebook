@@ -65,22 +65,22 @@ in
       };
     };
 
-    lit = {
-      image = {
-        command = [ "${packages.lit}/bin/lit" ];
-      };
-      service.environment = {
+    lit.service = {
+      useHostStore = true;
+      command = [ "${packages.lit}/bin/lit" ];
+      environment = {
         KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
       };
+      restart = "always";
     };
 
-    parrot = {
-      image = {
-        command = [ "${packages.parrot}/bin/parrot" ];
-      };
-      service.environment = {
+    parrot.service  = {
+      useHostStore = true;
+      command = [ "${packages.parrot}/bin/parrot" ];
+      environment = {
         KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
       };
+      restart = "always";
     };
 
     hyphe.service = {
@@ -91,19 +91,13 @@ in
       };
     };
 
-    # pubes = {
-    #   image = {
-    #     command = [ "${packages.pubes}/bin/pubes" ];
-    #   };
-    #   service = {
-    #     environment = {
-    #       KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
-    #     };
-    #     volumes = [
-    #       "${toString ./.}/pubes/data:/data:ro"
-    #     ];
-    #   };
-    # };
+    pubes.service = {
+      useHostStore = true;
+      command = [ "${packages.pubes}/bin/pubes" ];
+      environment = {
+        KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+      };
+    };
 
     mob.service = {
       useHostStore = true;

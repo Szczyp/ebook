@@ -32,5 +32,7 @@ let
       (import (builtins.fetchTarball "https://github.com/hercules-ci/ghcide-nix/tarball/master") {}).ghcide-ghc865
     ];
   };
+
+  buildEnv = haskellPackages.shellFor { packages = p: [ p.${name} ];};
 in
-drv // { inherit shell; }
+drv // { inherit shell buildEnv; }
