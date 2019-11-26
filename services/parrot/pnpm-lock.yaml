@@ -1,0 +1,74 @@
+dependencies:
+  franc: 4.1.0
+  node-html-parser: 1.1.16
+  node-rdkafka: github.com/Szczyp/node-rdkafka/a93180d769772e151f1b8f73fc59a7348cf595cc
+lockfileVersion: 5.1
+packages:
+  /bindings/1.5.0:
+    dependencies:
+      file-uri-to-path: 1.0.0
+    dev: false
+    resolution:
+      integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
+  /collapse-white-space/1.0.5:
+    dev: false
+    resolution:
+      integrity: sha512-703bOOmytCYAX9cXYqoikYIx6twmFCXsnzRQheBcTG3nzKYBR4P/+wkYeH+Mvj7qUz8zZDtdyzbxfnEi/kYzRQ==
+  /file-uri-to-path/1.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
+  /franc/4.1.0:
+    dependencies:
+      trigram-utils: 1.0.2
+    dev: false
+    resolution:
+      integrity: sha512-GIIncJbjhNO9y+lW0eG4V47XUYtIFBkQlTJHuCYXDIK2nxXvawKY48EifdN0W7MwRzU+5CJXm474gNDK45KNhg==
+  /he/1.1.1:
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha1-k0EP0hsAlzUVH4howvJx80J+I/0=
+  /n-gram/1.1.1:
+    dev: false
+    resolution:
+      integrity: sha512-qibRqvUghLIVsq+RTwVuwOzgOxf0l4DDZKVYAK0bMam5sG9ZzaJ6BUSJyG2Td8kTc7c/HcMUtjiN5ShobZA2bA==
+  /nan/2.14.0:
+    dev: false
+    resolution:
+      integrity: sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
+  /node-html-parser/1.1.16:
+    dependencies:
+      he: 1.1.1
+    dev: false
+    resolution:
+      integrity: sha512-cfqTZIYDdp5cGh3NvCD5dcEDP7hfyni7WgyFacmDynLlIZaF3GVlRk8yMARhWp/PobWt1KaCV8VKdP5LKWiVbg==
+  /trigram-utils/1.0.2:
+    dependencies:
+      collapse-white-space: 1.0.5
+      n-gram: 1.1.1
+      trim: 0.0.1
+    dev: false
+    resolution:
+      integrity: sha512-4/DmYtegpRAyTHPpL+asfLHfTdrTZ5N0FNaixyb4L6Bx3mi+g1wgsFJNixZ9Ycsjs3+FrK4zJoWW86cdMaL8RA==
+  /trim/0.0.1:
+    dev: false
+    resolution:
+      integrity: sha1-WFhUf2spB1fulczMZm+1AITEYN0=
+  github.com/Szczyp/node-rdkafka/a93180d769772e151f1b8f73fc59a7348cf595cc:
+    dependencies:
+      bindings: 1.5.0
+      nan: 2.14.0
+    dev: false
+    engines:
+      node: '>=6.0.0'
+    name: node-rdkafka
+    requiresBuild: true
+    resolution:
+      registry: 'https://registry.npmjs.org/'
+      tarball: 'https://codeload.github.com/Szczyp/node-rdkafka/tar.gz/a93180d769772e151f1b8f73fc59a7348cf595cc'
+    version: 2.7.4
+specifiers:
+  franc: 4.1.0
+  node-html-parser: 1.1.16
+  node-rdkafka: 'Szczyp/node-rdkafka#v2.7.4'
