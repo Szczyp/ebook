@@ -3,12 +3,18 @@
 with pkgs;
 
 let
-  sbtix = callPackage (fetchFromGitLab {
-    owner = "teozkr";
-    repo = "Sbtix";
-    rev = "4ab0d2d24b27eb4f1a293e4328a0cd1975a483ac";
-    sha256 = "178z2g8ayxv9vrar1vrwcdbxbdqlyjwhakjkfsc5nrk38v7nn9cz";
-  }) {};
+  name = "weir";
+
+  # sbtix = callPackage (fetchFromGitLab {
+  #   owner = "teozkr";
+  #   repo = "Sbtix";
+  #   rev = "4ab0d2d24b27eb4f1a293e4328a0cd1975a483ac";
+  #   sha256 = "178z2g8ayxv9vrar1vrwcdbxbdqlyjwhakjkfsc5nrk38v7nn9cz";
+  # }) {};
+
+  sbtix = callPackage /home/qb/projects/Sbtix {};
+
+  sbtixLib = pkgs.callPackage "/home/qb/projects/Sbtix/plugin/nix-exprs/sbtix.nix" {};
 
   metals-emacs = stdenv.mkDerivation rec {
     name = "metals-emacs";
@@ -52,10 +58,23 @@ let
     '';
   };
 
-  drv = {};
-
-  shell = mkShell {
-    buildInputs = [ sbt coursier metals-emacs ];
+  drv = sbtixLib.buildSbtProgram {
+    name = "weir";
+    src = pkgs.nix-gitignore.gitignoreSource [] ./.;
+    repo = [ (import ./manual-repo.nix)
+             (import ./repo.nix)
+             (import ./project/repo.nix)
+           ];
   };
 
-in drv // { inherit shell; }
+  shell = mkShell {
+    buildInputs = [ sbt coursier metals-emacs sbtix ];
+  };
+
+  image = pkgs.dockerTools.buildLayeredImage {
+    inherit name;
+    tag = "latest";
+    config.Cmd = [ "${drv}/bin/${name}"];
+  };
+
+in drv // { inherit shell image; }

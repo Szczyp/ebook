@@ -55,6 +55,14 @@ in
       };
     };
 
+    weir.service = {
+      useHostStore = true;
+      command = [ "${packages.weir}/bin/weir" ];
+      environment = {
+        KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+      };
+    };
+
     dog = {
       image = {
         contents = [ pkgs.cacert ];

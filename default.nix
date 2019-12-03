@@ -17,6 +17,7 @@ let
   projects = map (s: ./services + s) [
     "/cartographer"
     "/urex"
+    "/weir"
     "/dog"
     "/lit"
     "/parrot"
