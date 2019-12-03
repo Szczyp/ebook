@@ -19,11 +19,14 @@ type dog struct {
 	Html string `json:"html"`
 }
 
-func fetch(link string) string {
-	resp, _ := http.Get(link)
+func fetch(link string) (string, error) {
+	resp, err := http.Get(link)
+	if err != nil {
+		return "", err
+	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
-	return string(body)
+	return string(body), nil
 }
 
 func main() {
@@ -48,7 +51,10 @@ func main() {
 		if msg != nil {
 			links := urex{}
 			json.Unmarshal(msg.Value, &links)
-			h := fetch(links.Url)
+			h, err := fetch(links.Url)
+			if err != nil {
+				continue
+			}
 			html := &dog{
 				Url: links.Url,
 				From: links.From,
