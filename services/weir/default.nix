@@ -14,7 +14,7 @@ let
 
   sbtix = callPackage /home/qb/projects/Sbtix {};
 
-  sbtixLib = pkgs.callPackage "/home/qb/projects/Sbtix/plugin/nix-exprs/sbtix.nix" {};
+  sbtixLib = pkgs.callPackage ./sbtix.nix {};
 
   metals-emacs = stdenv.mkDerivation rec {
     name = "metals-emacs";
