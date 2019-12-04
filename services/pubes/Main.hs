@@ -22,7 +22,6 @@ import qualified Data.Text.Encoding         as TextEncoding
 import           Data.Text.IO               as TIO
 import           Data.Time.Calendar
 import           Data.Time.Clock
-import           Debug.Trace
 import           GHC.Generics
 import           Kafka.Consumer
     ( BrokerAddress (..)
