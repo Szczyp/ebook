@@ -12,11 +12,14 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.10",
     maxErrors := 3,
     libraryDependencies ++= Seq(
-      "dev.zio"               %% "zio"         % ZioVersion,
-      "dev.zio"               %% "zio-streams" % ZioVersion,
-      "dev.zio"               %% "zio-kafka"   % "0.4.1",
-      "io.argonaut"           %% "argonaut"    % "6.2.2",
-      "org.specs2"            %% "specs2-core" % Specs2Version % "test"
+      "dev.zio"     %% "zio"                  % ZioVersion,
+      "dev.zio"     %% "zio-streams"          % ZioVersion,
+      "dev.zio"     %% "zio-kafka"            % "0.4.1",
+      "dev.zio"     %% "zio-kafka"            % "0.4.1",
+      "io.argonaut" %% "argonaut"             % "6.2.2",
+      "io.argonaut" %% "argonaut-scalaz"      % "6.2.2",
+      "io.argonaut" %% "argonaut-monocle"     % "6.2.2",
+      "org.specs2"  %% "specs2-core"          % Specs2Version % "test"
     )
   )
 

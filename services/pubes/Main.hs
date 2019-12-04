@@ -1,26 +1,24 @@
-{-# LANGUAGE DuplicateRecordFields, NamedFieldPuns, OverloadedStrings,
-             BangPatterns, RecordWildCards, StrictData #-}
+{-# LANGUAGE NamedFieldPuns, OverloadedStrings, StrictData #-}
 
 module Main where
 
-import Pubes
-import Hyphe
-
 import           Control.Error.Util
+import           Control.Lens
 import           Control.Monad              (void)
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Logger       (runNoLoggingT, runStdoutLoggingT)
 import           Control.Monad.Trans.Reader
-import           Data.Aeson
+import qualified Data.Aeson                 as Aeson
+import           Data.Aeson.Lens
 import qualified Data.ByteString            as BS
-import qualified Data.ByteString.UTF8            as BSUTF8
 import qualified Data.ByteString.Base64     as Base64
 import qualified Data.ByteString.Char8      as C8
 import           Data.ByteString.Lazy       (ByteString, fromStrict, toStrict)
+import qualified Data.ByteString.UTF8       as BSUTF8
 import           Data.Maybe                 (fromMaybe)
 import           Data.Monoid                ((<>))
 import           Data.Text
-import           Data.Text.Encoding
+import qualified Data.Text.Encoding         as TextEncoding
 import           Data.Text.IO               as TIO
 import           Data.Time.Calendar
 import           Data.Time.Clock
@@ -47,7 +45,7 @@ import qualified Pipes                      as P
 import           Pipes.Kafka
 import qualified Pipes.Prelude              as P
 import qualified Pipes.Safe                 as PS
-import           System.Environment         (lookupEnv, getExecutablePath)
+import           System.Environment         (getExecutablePath, lookupEnv)
 import           System.FilePath
 import           Text.Pandoc                hiding
     (getCurrentTime, getDataFileName, lookupEnv)
@@ -67,14 +65,15 @@ processHyphe
   :: ConsumerRecord (Maybe C8.ByteString) (Maybe C8.ByteString)
   -> ReaderT Config Maybe C8.ByteString
 processHyphe ConsumerRecord{crValue} = do
-  v <- lift crValue
-  hyphe@Hyphe{hyphenated,title,byline} <- lift $ decode (fromStrict v)
+  json <- lift $ TextEncoding.decodeUtf8 <$> crValue
+  title <- lift $ json ^? key "title" . _String
+  let byline = json ^? key "byline" . _String
+  hyphenated <- lift $ json ^? key "hyphenated" . _String
   epub <- html2epub title byline hyphenated css template
-  pure $ toStrict . encode $ hyphe2pubes hyphe (epub64 epub)
+  pure $ TextEncoding.encodeUtf8 $ json & _Object . at "epub" ?~ Aeson.String (epub64 epub)
 
   where
-    hyphe2pubes Hyphe{..} epub = Pubes{..}
-    epub64 = decodeUtf8 . Base64.encode . toStrict
+    epub64 = TextEncoding.decodeUtf8 . Base64.encode . toStrict
     html2epub title author html css template = do
       Config{css, template, time} <- ask
       lift $ hush $ runPure $ do
@@ -94,7 +93,7 @@ processHyphe ConsumerRecord{crValue} = do
 main :: IO ()
 main = do
   path <- takeDirectory <$> getExecutablePath
-  !config@Config{servers} <- Config
+  config@Config{servers} <- Config
     <$> BS.readFile (path </> "data/ebook.css")
     <*> (BSUTF8.toString <$> BS.readFile (path </> "data/template.t"))
     <*> getCurrentTime

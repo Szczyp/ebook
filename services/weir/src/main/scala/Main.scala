@@ -16,8 +16,7 @@ object Main extends App {
     .provide(new Clock.Live with Blocking.Live with Config.Live)
 
   def run(args: List[String]) =
-    Pipe
-      .run
+    Pipe.run
       .provideM(env)
       .fold(_ => 1, _ => 0)
 }

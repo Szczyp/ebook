@@ -14,18 +14,19 @@ build-type:          Simple
 
 executable hyphe
   main-is:             Main.hs
-  other-modules:       Parrot, Hyphe
   -- other-extensions:
   build-depends:       base >=4.12 && < 4.13
-                     , hyphenation >= 0.8 && < 0.9
-                     , tagsoup >= 0.14 && < 0.15
-                     , hw-kafka-client >= 2.6.1 && < 2.7
-                     , pipes >= 4.3 && < 4.4
-                     , pipes-safe >= 2.3 && <  2.4
-                     , pipes-kafka >= 0.2 && < 0.3
-                     , monad-logger >= 0.3 && < 0.4
-                     , bytestring >= 0.10 && < 0.11
                      , aeson >= 1.4 && < 1.5
+                     , bytestring >= 0.10 && < 0.11
+                     , hw-kafka-client >= 2.6.1 && < 2.7
+                     , hyphenation >= 0.8 && < 0.9
+                     , lens >= 4.17 && < 4.18
+                     , lens-aeson >= 1.0 && < 1.1
+                     , monad-logger >= 0.3 && < 0.4
+                     , pipes >= 4.3 && < 4.4
+                     , pipes-kafka >= 0.2 && < 0.3
+                     , pipes-safe >= 2.3 && <  2.4
+                     , tagsoup >= 0.14 && < 0.15
                      , text >= 1.2 && < 1.3
   -- hs-source-dirs:
   default-language:    Haskell2010

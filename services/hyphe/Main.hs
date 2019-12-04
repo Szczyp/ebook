@@ -1,19 +1,17 @@
-{-# LANGUAGE DuplicateRecordFields, NamedFieldPuns, OverloadedStrings,
-             RecordWildCards #-}
+{-# LANGUAGE NamedFieldPuns, OverloadedStrings #-}
 
 module Main where
 
-import Hyphe
-import Parrot
-
-import Prelude hiding (length)
+import           Control.Lens
 import qualified Control.Monad.Logger      as Logger
 import qualified Data.Aeson                as Aeson
+import           Data.Aeson.Lens
 import qualified Data.ByteString.Char8     as Char8
 import qualified Data.ByteString.Lazy      as ByteString
 import qualified Data.Maybe                as Maybe
 import           Data.Text                 (Text)
 import qualified Data.Text                 as Text
+import qualified Data.Text.Encoding        as TextEncoding
 import qualified Kafka.Consumer            as KafkaConsumer
 import qualified Kafka.Producer            as KafkaProducer
 import           Kafka.Types               (KafkaLogLevel (..))
@@ -21,6 +19,7 @@ import           Pipes                     ((>->))
 import qualified Pipes
 import qualified Pipes.Kafka               as PipesKafka
 import qualified Pipes.Safe                as PipesSafe
+import           Prelude                   hiding (length)
 import qualified System.Environment        as Environment
 import           Text.HTML.TagSoup         (Tag (..))
 import           Text.HTML.TagSoup.Tree    (TagTree (..))
@@ -110,12 +109,11 @@ processParrot
   :: KafkaConsumer.ConsumerRecord (Maybe Char8.ByteString) (Maybe Char8.ByteString)
   -> Maybe Char8.ByteString
 processParrot KafkaConsumer.ConsumerRecord{KafkaConsumer.crValue} = do
-  v <- crValue
-  parrot@Parrot{content,lang} <- Aeson.decode (ByteString.fromStrict v)
-  pure $ ByteString.toStrict . Aeson.encode . parrot2hyphe (hyphenate lang content) $ parrot
+  json <- TextEncoding.decodeUtf8 <$> crValue
+  content <- json ^? key "content" . _String
+  lang <- json ^? key "lang" . _String
 
-  where
-    parrot2hyphe hyphenated Parrot{..} = Hyphe{..}
+  pure $ TextEncoding.encodeUtf8 $ json & _Object . at "hyphenated" ?~ Aeson.String (hyphenate lang content)
 
 
 main :: IO ()

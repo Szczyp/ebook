@@ -8,17 +8,6 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-type urex struct {
-	Url string
-	From string
-}
-
-type dog struct {
-	Url string `json:"url"`
-	From string `json:"from"`
-	Html string `json:"html"`
-}
-
 func fetch(link string) (string, error) {
 	resp, err := http.Get(link)
 	if err != nil {
@@ -44,22 +33,19 @@ func main() {
 		"bootstrap.servers": servers,
 	})
 
-	consumer.Subscribe("urex", nil)
+	consumer.Subscribe("weir", nil)
 
 	for {
 		msg, _ := consumer.ReadMessage(-1)
 		if msg != nil {
-			links := urex{}
-			json.Unmarshal(msg.Value, &links)
-			h, err := fetch(links.Url)
+			var data map[string]interface{}
+			json.Unmarshal(msg.Value, &data)
+			html, err := fetch(data["url"].(string))
 			if err != nil {
 				continue
 			}
-			html := &dog{
-				Url: links.Url,
-				From: links.From,
-				Html: h}
-			json, _ := json.Marshal(html)
+			data["html"] = html
+			json, _ := json.Marshal(data)
 
 			topic := "dog"
 			producer.Produce(&kafka.Message{

@@ -2,24 +2,15 @@ package weir
 
 import zio._
 import zio.duration._
-import zio.clock.Clock
-import zio.blocking.Blocking
 import weir.MailRegistry._
 import argonaut._, Argonaut._
+import ArgonautScalaz._
 
 import zio.kafka.client._
 import zio.kafka.client.serde._
 import org.apache.kafka.clients.producer.ProducerRecord
 
 object Pipe {
-  case class Urex(url: String, from: String)
-  implicit def UrexCodecJson =
-    casecodec2(Urex.apply, Urex.unapply)("url", "from")
-
-  case class Weir(url: String, from: String, to: String)
-  implicit def WeirCodecJson =
-    casecodec3(Weir.apply, Weir.unapply)("url", "from", "to")
-
   val run =
     for {
       cfg <- config.get
@@ -45,32 +36,40 @@ object Pipe {
       producer = Producer.make(producerSettings, Serde.string, Serde.string)
 
       _ <- (consumer zip producer).use {
-        case (consumer, producer) =>
-          consumer
-            .subscribeAnd(Subscription.topics("urex"))
-            .plainStream(Serde.string, Serde.string)
-            .mapConcat(r => r.record.value().decodeOption[Urex].map(v => (r.record.key(), r.offset, v)))
-            .mapM {
-              case (key, offset, Urex(url, from)) =>
-                mailRegistry
-                  .lookup(from)
-                  .map(
-                    _.map(
-                      to => (new ProducerRecord("weir", key, new Weir(url, from, to).asJson.nospaces), offset)
-                    )
-                  )
-            }
-            .collect { case Some(x) => x }
-            .chunks
-            .mapM { chunk =>
-              val records = chunk.map(_._1)
+            case (consumer, producer) =>
+              consumer
+                .subscribeAnd(Subscription.topics("urex"))
+                .plainStream(Serde.string, Serde.string)
+                .mapConcat(r => r.record.value().parseOption.map(data => (r.record.key(), r.offset, data)))
+                .mapM {
+                  case (key, offset, data) =>
+                    val fromL = jObjectPL >=> jsonObjectPL("from") >=> jStringPL
 
-              val offsetBatch = OffsetBatch(chunk.map(_._2).toSeq)
+                    fromL.get(data) match {
+                      case None => UIO(None)
+                      case Some(from) =>
+                        mailRegistry
+                          .lookup(from)
+                          .map(
+                            _.map(
+                              to => {
+                                val json = ("to" := to) ->: data
+                                (new ProducerRecord("weir", key, json.nospaces), offset)
+                              }
+                            )
+                          )
+                    }
+                }
+                .collect { case Some(x) => x }
+                .chunks
+                .mapM { chunk =>
+                  val records = chunk.map(_._1)
 
-              producer.produceChunk(records) *> offsetBatch.commit
-            }
-            .runDrain
-      }
+                  val offsetBatch = OffsetBatch(chunk.map(_._2).toSeq)
+
+                  producer.produceChunk(records) *> offsetBatch.commit
+                }
+                .runDrain
+          }
     } yield ()
-
 }
