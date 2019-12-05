@@ -2,6 +2,7 @@
 
 module Main where
 
+import           Control.Applicative
 import           Control.Error.Util
 import           Control.Lens
 import           Control.Monad              (void)
@@ -64,16 +65,15 @@ processHyphe
   :: ConsumerRecord (Maybe C8.ByteString) (Maybe C8.ByteString)
   -> ReaderT Config Maybe C8.ByteString
 processHyphe ConsumerRecord{crValue} = do
-  json <- lift $ TextEncoding.decodeUtf8 <$> crValue
-  title <- lift $ json ^? key "title" . _String
-  let byline = json ^? key "byline" . _String
-  hyphenated <- lift $ json ^? key "hyphenated" . _String
-  epub <- html2epub title byline hyphenated css template
+  json                <- TextEncoding.decodeUtf8 <$> crValue & lift
+  (title, hyphenated) <- each (pluck json) ("title", "hyphenated") & lift
+  byline              <- pluck json "byline" <|> pure "unknown" & lift
+  epub                <- html2epub title byline hyphenated
   pure $ TextEncoding.encodeUtf8 $ json & _Object . at "epub" ?~ Aeson.String (epub64 epub)
 
   where
     epub64 = TextEncoding.decodeUtf8 . Base64.encode . toStrict
-    html2epub title author html css template = do
+    html2epub title author html = do
       Config{css, template, time} <- ask
       lift $ hush $ runPure $ do
         modifyPureState $ \ s ->
@@ -83,10 +83,11 @@ processHyphe ConsumerRecord{crValue} = do
           >>= writeEPUB3 def { writerTemplate = Just template }
     setMetadata title author doc =
       pure $ PB.setTitle (conv title)
-      $ PB.setAuthors [maybe (PB.text "unknown") conv author]
+      $ PB.setAuthors [conv author]
       $ PB.setMeta "css" ("epub.css" :: FilePath) doc
       where
         conv = PB.text . unpack
+    pluck json k = json ^? key k . _String
 
 
 main :: IO ()

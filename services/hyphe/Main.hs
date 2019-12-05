@@ -109,11 +109,12 @@ processParrot
   :: KafkaConsumer.ConsumerRecord (Maybe Char8.ByteString) (Maybe Char8.ByteString)
   -> Maybe Char8.ByteString
 processParrot KafkaConsumer.ConsumerRecord{KafkaConsumer.crValue} = do
-  json <- TextEncoding.decodeUtf8 <$> crValue
-  content <- json ^? key "content" . _String
-  lang <- json ^? key "lang" . _String
-
+  json            <- TextEncoding.decodeUtf8 <$> crValue
+  (content, lang) <- each (pluck json) ("content", "lang")
   pure $ TextEncoding.encodeUtf8 $ json & _Object . at "hyphenated" ?~ Aeson.String (hyphenate lang content)
+
+  where
+    pluck json k = json ^? key k . _String
 
 
 main :: IO ()
