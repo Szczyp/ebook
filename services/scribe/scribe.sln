@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26124.0
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "scribe", "scribe\scribe.fsproj", "{8A5372C4-CA51-4919-A35C-D0F580BAD14D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A5372C4-CA51-4919-A35C-D0F580BAD14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A5372C4-CA51-4919-A35C-D0F580BAD14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A5372C4-CA51-4919-A35C-D0F580BAD14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A5372C4-CA51-4919-A35C-D0F580BAD14D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

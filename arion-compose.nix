@@ -116,5 +116,17 @@ in
       };
     };
 
+    scribe.service = {
+      useHostStore = true;
+      command = [ "${packages.scribe}/bin/scribe" ];
+      tmpfs = [ "/tmp" ];
+      environment = {
+        KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+      };
+      volumes = [
+        "${toString ./.}/configs/scribe:/etc/scribe"
+      ];
+    };
+
   };
 }

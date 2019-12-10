@@ -23,7 +23,7 @@ def send_test_mail():
 
 
 def pipe():
-    topics = ["cartographer", "urex", "dog", "lit", "parrot", "hyphe", "pubes", "mob"]
+    topics = ["cartographer", "urex", "weir", "dog", "lit", "parrot", "hyphe", "pubes", "mob" "scribe"]
     consumer.subscribe(topics)
     results = []
 
@@ -51,7 +51,10 @@ def out(topic):
         if msg is None:
             continue
 
-        print(json.dumps(json.loads(msg.value())))
+        try:
+            print(json.dumps(json.loads(msg.value())))
+        except:
+            print(msg.value())
 
         break
 
@@ -68,6 +71,8 @@ def main():
                 print("topic required")
         else:
             print("unknown cmd")
+
+    consumer.close()
 
 
 if __name__ == "__main__":

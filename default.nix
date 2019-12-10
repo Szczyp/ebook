@@ -24,6 +24,7 @@ let
     "/hyphe"
     "/pubes"
     "/mob"
+    "/scribe"
   ];
 
   k8sConfig =
