@@ -5,7 +5,7 @@
 #   pypi2nix -V python37 -r requirements.txt -r requirements-dev.txt -E rdkafka
 #
 
-{ pkgs ? import <nixpkgs> {},
+{ pkgs,
   overrides ? ({ pkgs, python }: self: super: {})
 }:
 
