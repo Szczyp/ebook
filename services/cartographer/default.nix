@@ -2,7 +2,7 @@
 let
   mavenix-src = fetchTarball { url = "https://github.com/icetan/mavenix/tarball/v2.3.0"; sha256 = "10jyfrc2s45ylff3bw9abvsanrn0xcci8v07b5jn7ibx4y8cwi4c"; };
 in {
-  pkgs ? import ../../nixpkgs.nix,
+  pkgs ? import ./nixpkgs.nix,
   mavenix ? import mavenix-src { inherit pkgs; },
   doCheck ? false,
 }:

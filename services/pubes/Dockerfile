@@ -2,11 +2,13 @@ FROM nixos/nix:2.3 AS base
 
 RUN nix-channel --update
 
+RUN nix-env -iA nixpkgs.git
+
 FROM base AS build
 
 WORKDIR /opt/pubes
 
-COPY pubes.cabal default.nix .gitignore /opt/pubes/
+COPY pubes.cabal nixpkgs.nix default.nix .gitignore /opt/pubes/
 
 RUN nix-build -A buildEnv
 

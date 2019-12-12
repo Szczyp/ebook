@@ -1,2 +1,2 @@
-with (import ../../nixpkgs.nix);
+with (import ./nixpkgs.nix);
 (callPackage(./.) {}).shell

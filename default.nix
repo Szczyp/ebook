@@ -12,7 +12,7 @@ let
     sha256 = "1rmhwic80vlra5g1ism0q46jbmx52wmc34cxw3k9i6q5xbx291g1";
   }) { inherit pkgs; };
 
-  mkPkg = path: callPackage path { inherit pkgs; };
+  mkPkg = path: callPackage path {};
 
   projects = map (s: ./services + s) [
     "/cartographer"

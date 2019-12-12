@@ -1,4 +1,4 @@
-{ pkgs ? import ../../nixpkgs.nix }:
+{ pkgs ? import ./nixpkgs.nix }:
 let
   name = "lit";
   version = "1.0.0";
