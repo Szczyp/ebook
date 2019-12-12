@@ -34,7 +34,8 @@ let
     in
       kubenix.lib.toYAML (kubenix.lib.k8s.mkHashedList { items = config.config.kubernetes.objects; });
 
-  recreate-cluster = pkgs.writeBashBin "recreate-cluster" ''
+  recreate-cluster = writeScriptBin "recreate-cluster" ''
+      #! ${pkgs.runtimeShell}
       set -euo pipefail
 
       ${kind}/bin/kind delete cluster || true
