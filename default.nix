@@ -34,8 +34,7 @@ let
     in
       kubenix.lib.toYAML (kubenix.lib.k8s.mkHashedList { items = config.config.kubernetes.objects; });
 
-  recreate-cluster = pkgs.writeScriptBin "recreate-cluster" ''
-      #! ${pkgs.runtimeShell}
+  recreate-cluster = pkgs.writeBashBin "recreate-cluster" ''
       set -euo pipefail
 
       ${kind}/bin/kind delete cluster || true
@@ -71,11 +70,16 @@ let
   images = mapAttrs (n: v: v.image) (filterAttrs (n: v: v ? image) packages);
 
   shell = mkShell {
-    buildInputs = [ arion kind kubectl kafkacat recreate-cluster ];
+    buildInputs = [ arion kafkacat ];
+  };
+
+  k8shell = mkShell {
+    buildInputs = [ kind kubectl kafkacat recreate-cluster ];
     shellHook = ''
-      export KUBECONFIG=$(${kind}/bin/kind get kubeconfig-path --name="kind")
+      source recreate-cluster
     '';
   };
+
 in {
-  inherit packages images shell k8sConfig;
+  inherit packages images shell k8shell k8sConfig;
 }
