@@ -5,3 +5,4 @@
 /config.yaml
 /result
 /ebook/__pycache__/
+.envrc
