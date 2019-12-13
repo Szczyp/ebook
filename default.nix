@@ -1,14 +1,15 @@
-let
-  nixpkgs = import ./nixpkgs.nix;
-
-  poetry-overlay = import ((builtins.fetchTarball {
-    url = https://github.com/adisbladis/poetry2nix/archive/master.tar.gz; }) + "/overlay.nix");
-in
-{ pkgs ? nixpkgs.extend poetry-overlay }:
+{ pkgs ? import ./nixpkgs.nix }:
 
 with pkgs;
 
 let
+  readability = (callPackage (fetchFromGitHub {
+    owner  = "Szczyp";
+    repo   = "readability";
+    rev    = "v1.0.0";
+    sha256 = "0dbwcb2xsnp9qyx71pghk7p4s1x0zh38qn73h34sgqshwhx23py1";
+  }) { inherit pkgs; }).package;
+
   external-dependencies = [
     pandoc
     kindlegen
