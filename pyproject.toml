@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "ebook"
+version = "1.0.4"
+description = "IMAP url -> SMTP mobi"
+authors = ["Szczyp <qb@szczyp.com>"]
+license = "GPL-3.0-or-later"
+
+[tool.poetry.scripts]
+ebook = 'ebook:main'
+url2ebook = 'ebook:url2ebook'
+hyphenate = 'ebook:hyphenate'
+
+[tool.poetry.dependencies]
+python = "^3.7"
+IMAPClient = "^2.1"
+pandocfilters = "^1.4"
+Pyphen = "^0.9.5"
+urlextract = "^0.14.0"
+PyYAML = "^5.2"
+aiohttp = "^3.6"
+cchardet = "^2.1"
+beautifulsoup4 = "^4.8"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

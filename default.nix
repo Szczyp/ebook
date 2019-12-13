@@ -1,24 +1,32 @@
-{ pkgs ? import ./nixpkgs.nix }:
+let
+  nixpkgs = import ./nixpkgs.nix;
+
+  poetry-overlay = import ((builtins.fetchTarball {
+    url = https://github.com/adisbladis/poetry2nix/archive/master.tar.gz; }) + "/overlay.nix");
+in
+{ pkgs ? nixpkgs.extend poetry-overlay }:
+
+with pkgs;
 
 let
-  python = import ./requirements.nix { inherit pkgs; };
-
-  external-dependencies = (with pkgs; [
+  external-dependencies = [
     pandoc
     kindlegen
     readability
     imagemagick7
-  ]);
+  ];
 
-  drv = python.mkDerivation {
-    name = "ebook-1.0.4";
-    src = ./.;
-    buildInputs = [];
-    propagatedBuildInputs = (builtins.attrValues python.packages) ++ external-dependencies;
-  };
+  drv = (poetry2nix.mkPoetryPackage {
+    python = python37;
+    pyproject = ./pyproject.toml;
+    poetryLock = ./poetry.lock;
+    src = lib.cleanSource ./.;
+  }).overrideAttrs (d: {
+    propagatedBuildInputs = d.propagatedBuildInputs ++ external-dependencies;
+  });
 
-  dev-env = pkgs.mkShell {
-    buildInputs = [ python.interpreter ] ++ external-dependencies;
+  shell = pkgs.mkShell {
+    buildInputs = [ poetry ] ++ external-dependencies;
   };
 in
-drv // { inherit dev-env; }
+drv // { inherit shell; }
