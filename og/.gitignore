@@ -1,8 +1,0 @@
-/out/
-/node_modules/
-/ebook-venv/
-/__pycache__/
-/config.yaml
-/result
-/ebook/__pycache__/
-.envrc
