@@ -3,8 +3,6 @@ with pkgs;
 with lib;
 with builtins;
 let
-  arion = (import (builtins.fetchTarball https://github.com/hercules-ci/arion/tarball/master) {}).arion;
-
   kubenix = callPackage (fetchFromGitHub {
     owner = "xtruder";
     repo = "kubenix";
