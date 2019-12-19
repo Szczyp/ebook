@@ -19,14 +19,8 @@ let
     meta = {};
   };
 
-  image = dockerTools.buildLayeredImage {
-    name = name;
-    tag = "latest";
-    config.Cmd = [ "${drv}/bin/${name}"];
-  };
-
   shell = pkgs.mkShell {
     buildInputs = [ dotnet-sdk vscode dotnet2nix.cli ];
   };
 in
-drv // { inherit shell image; }
+drv // { inherit shell; }

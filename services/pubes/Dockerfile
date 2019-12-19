@@ -2,19 +2,19 @@ FROM nixos/nix:2.3 AS base
 
 RUN nix-channel --update
 
-RUN nix-env -iA nixpkgs.git
-
 FROM base AS build
 
 WORKDIR /opt/pubes
 
-COPY pubes.cabal nixpkgs.nix default.nix .gitignore /opt/pubes/
+COPY pubes.cabal nixpkgs.nix default.nix .gitignore ./
+
+RUN nix-env -iA nixpkgs.git
 
 RUN nix-build -A buildEnv
 
-COPY *.hs /opt/pubes/
+COPY *.hs ./
 
-COPY data /opt/pubes/data
+COPY data ./data
 
 RUN nix-build
 
@@ -24,4 +24,4 @@ RUN nix-env -iA nixpkgs.gmp nixpkgs.rdkafka nixpkgs.zlib nixpkgs.lua5_3 nixpkgs.
 
 COPY --from=build /opt/pubes/result/bin /opt/pubes
 
-ENTRYPOINT [ "/opt/pubes/pubes" ]
+ENTRYPOINT ["/opt/pubes/pubes"]
