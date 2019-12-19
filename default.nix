@@ -36,20 +36,23 @@ let
       #! ${pkgs.runtimeShell}
       set -euo pipefail
 
-      ${kind}/bin/kind delete cluster || true
-      ${kind}/bin/kind create cluster
-
-      export KUBECONFIG=$(${kind}/bin/kind get kubeconfig-path --name="kind")
-
       for i in ${concatStringsSep " " (attrValues images)}
       do
         echo "docker: loading image $i..."
         ${docker}/bin/docker load -i $i
       done
 
-      pushd services/pubes
-      ${docker}/bin/docker build -t pubes:latest .
-      popd
+      for p in pubes scribe
+      do
+        pushd services/$p
+        ${docker}/bin/docker build -t $p:latest .
+        popd
+      done
+
+      ${kind}/bin/kind delete cluster || true
+      ${kind}/bin/kind create cluster
+
+      export KUBECONFIG=$(${kind}/bin/kind get kubeconfig-path --name="kind")
 
       for i in ${concatStringsSep " " (attrNames packages)}
       do
@@ -75,7 +78,8 @@ let
   k8shell = mkShell {
     buildInputs = [ kind kubectl kafkacat recreate-cluster ];
     shellHook = ''
-      source recreate-cluster
+      recreate-cluster
+      export KUBECONFIG=$(${kind}/bin/kind get kubeconfig-path --name="kind")
     '';
   };
 
