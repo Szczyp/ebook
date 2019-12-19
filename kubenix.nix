@@ -1,36 +1,73 @@
 { pkgs, kubenix, projects }:
 with pkgs;
 with lib;
+with builtins;
 let
-  mkDeployment = {name, env ? [], tempdir ? false}:
-    {
-      metadata = {
-        name = name;
-        labels = {
-          app = name;
-          namespace = "ebook";
-        };
-      };
+  configs = attrNames (readDir ./configs);
 
-      spec = {
-        replicas = 1;
-        selector.matchLabels.app = name;
-        template = {
-          metadata.labels.app = name;
-          spec = {
-            containers."${name}" = {
-              name = "${name}";
-              image = "${name}:latest";
-              imagePullPolicy = "IfNotPresent";
-              env = [{ name = "KAFKA_BOOTSTRAP_SERVERS"; value = "bootstrap.kafka:9092"; }] ++ env;
-              resources.limits.cpu = "100m";
-              volumeMounts = if tempdir then [{ name = "tempdir"; mountPath = "/tmp"; }] else [];
+  mkSecret = name:
+    { metadata = {
+        name = name;
+        namespace = "ebook";
+      };
+      type = "Opaque";
+      stringData = mapAttrs
+        (f: _: readFile (./configs + "/${name}/${f}"))
+        (readDir (./configs + "/${name}"));
+    };
+
+  mkDeployment = { name, env ? {}, tmp ? false }:
+    let
+      emptyVolumes = { mounts = []; volumes = []; };
+
+      tempVolumes = if tmp
+                    then {
+                      mounts = [{ name = "tmp"; mountPath = "/tmp"; }];
+                      volumes = [{ name = "tmp"; emptyDir = {}; }];
+                    } else emptyVolumes;
+
+      configVolumes = if elem name configs
+                      then {
+                        mounts = [{ name = "config"; mountPath = "/etc/${name}"; readOnly = true; }];
+                        volumes = [{ name = "config"; secret = { secretName = name; }; }];
+                      } else emptyVolumes;
+
+      finalVolumes = zipAttrsWith (_: v: concatLists v) [ tempVolumes configVolumes ];
+
+      defaultEnv = { KAFKA_BOOTSTRAP_SERVERS = "bootstrap.kafka:9092"; };
+
+      finalEnv = mapAttrsToList nameValuePair (defaultEnv // env);
+
+    in
+      {
+        metadata = {
+          name = name;
+          namespace = "ebook";
+          labels = {
+            app = name;
+            namespace = "ebook";
+          };
+        };
+
+        spec = {
+          replicas = 1;
+          selector.matchLabels.app = name;
+          template = {
+            metadata.labels.app = name;
+            spec = {
+              containers."${name}" = {
+                name = "${name}";
+                image = "${name}:latest";
+                imagePullPolicy = "IfNotPresent";
+                env = finalEnv;
+                resources.limits.cpu = "100m";
+                volumeMounts = finalVolumes.mounts;
+              };
+              volumes = finalVolumes.volumes;
             };
-            volumes = if tempdir then [{ name = "tempdir"; emptyDir = {}; }] else [];
           };
         };
       };
-    };
 
   createTopic = name: {
     name = "create-${name}-topic";
@@ -61,26 +98,31 @@ let
       [
         (genAttrs projectNames (name: {inherit name;}))
         {
-          "cartographer" = { env = [{ name = "MICRONAUT_CONFIG_FILES"; value = "classpath:mail.yml"; }]; };
-          "mob" = { tempdir = true; };
+          cartographer = { env = { MICRONAUT_CONFIG_FILES = "classpath:mail.yml"; }; };
+          mob = { tmp = true; };
+          scribe = { tmp = true; };
         }
       ]);
 
-  topics = map createTopic projectNames;
+  topics = map createTopic (projectNames ++ [ "draft" ]);
 in
 {
   imports = with kubenix.modules; [ k8s ];
 
-  kubernetes.resources.jobs."create-ebook-topics" = {
-    metadata = {
-      name = "create-ebook-topics";
-      namespace = "ebook";
+  kubernetes.resources = {
+    jobs."create-ebook-topics" = {
+      metadata = {
+        name = "create-ebook-topics";
+        namespace = "ebook";
+      };
+      spec.template.spec = {
+        restartPolicy = "Never";
+        containers = topics;
+      };
     };
-    spec.template.spec = {
-      restartPolicy = "Never";
-      containers = topics;
-    };
-  };
 
-  kubernetes.resources.deployments = deployments;
+    secrets = listToAttrs (map (c: nameValuePair c (mkSecret c)) configs);
+
+    deployments = deployments;
+  };
 }

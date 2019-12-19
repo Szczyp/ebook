@@ -1,1 +1,1 @@
-((import ./nixpkgs.nix).callPackage(./.){}).k8shell
+(import ./. {}).k8shell
