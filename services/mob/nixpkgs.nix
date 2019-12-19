@@ -1,6 +1,6 @@
-import (builtins.fetchGit {
-  name = "nixpkgs-unstable-small-szczyp-2019-12-13";
-  url = "https://github.com/Szczyp/nixpkgs";
-  ref = "unstable-small";
-  rev = "c8967467cad523cb861df6e07e939030cfd2c558";
+import (builtins.fetchTarball {
+  name = "szczyp-unstable-small";
+  url = "https://github.com/Szczyp/nixpkgs/archive/6ca04d66276aa3a203109243742825507224c524.tar.gz";
+  sha256 = "00imhrj3jw9hw446fqxxggrq4pvnvhswfrb1wphbr6dnnl73cql1";
 }) {}
+
