@@ -1,4 +1,4 @@
-﻿open System
+open System
 
 
 module Kafka =
@@ -105,9 +105,7 @@ module Mail =
                 sprintf "%s.mobi" <| Regex.Replace(s, @"[^-\w.]", " ")
 
             let msg = MimeMessage()
-            printfn "record: %A\nconfig: %A" record config
             let from = MailboxAddress(config.User)
-            printfn "from: %s" from.Address
             msg.From.Add(from)
             msg.To.Add(MailboxAddress(record.To))
             msg.Subject <- record.Title
