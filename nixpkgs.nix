@@ -6,6 +6,6 @@ import (builtins.fetchGit {
 }) {
   overlays = [
     (import ((builtins.fetchTarball {
-      url = https://github.com/adisbladis/poetry2nix/archive/master.tar.gz; }) + "/overlay.nix"))
+      url = https://github.com/adisbladis/poetry2nix/archive/84f27ee31de2d03f525cc80a3675642ecb4377ee.tar.gz; }) + "/overlay.nix"))
   ];
 }
