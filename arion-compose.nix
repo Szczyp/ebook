@@ -43,8 +43,11 @@ in
       command = [ "${packages.cartographer}/bin/cartographer" ];
       environment = {
         KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
-        MICRONAUT_CONFIG_FILES = "classpath:mail.yml";
+        MICRONAUT_CONFIG_FILES = "/etc/cartographer/mail.yml";
       };
+      volumes = [
+        "${toString ./.}/configs/cartographer:/etc/cartographer"
+      ];
     };
 
     urex.service = {

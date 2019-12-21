@@ -98,7 +98,7 @@ let
       [
         (genAttrs projectNames (name: {inherit name;}))
         {
-          cartographer = { env = { MICRONAUT_CONFIG_FILES = "classpath:mail.yml"; }; };
+          cartographer = { env = { MICRONAUT_CONFIG_FILES = "/etc/cartographer/mail.yml"; }; };
           mob = { tmp = true; };
           scribe = { tmp = true; };
         }
