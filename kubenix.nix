@@ -57,7 +57,7 @@ let
             spec = {
               containers."${name}" = {
                 name = "${name}";
-                image = "${name}:latest";
+                image = "registry:5000/${name}:latest";
                 imagePullPolicy = "IfNotPresent";
                 env = finalEnv;
                 resources.limits.cpu = "100m";
@@ -93,18 +93,19 @@ let
 
   projectNames = map (path: baseNameOf path) projects;
 
-  deployments = mapAttrs (n: v: mkDeployment v)
+  mkDeployments = deployments: mapAttrs (n: v: mkDeployment v)
     (zipAttrsWith (n: vs: foldr (a: b: a // b) {} vs)
       [
         (genAttrs projectNames (name: {inherit name;}))
-        {
-          cartographer = { env = { MICRONAUT_CONFIG_FILES = "/etc/cartographer/mail.yml"; }; };
-          mob = { tmp = true; };
-          scribe = { tmp = true; };
-        }
+        deployments
       ]);
 
-  topics = map createTopic (projectNames ++ [ "draft" ]);
+  topics =
+    let
+      excludedTopics = [ "heave" ];
+      extraTopics = [ "draft" ];
+    in
+      map createTopic ((filter (topic: !(elem topic excludedTopics)) projectNames) ++ extraTopics);
 in
 {
   imports = with kubenix.modules; [ k8s ];
@@ -123,6 +124,11 @@ in
 
     secrets = listToAttrs (map (c: nameValuePair c (mkSecret c)) configs);
 
-    deployments = deployments;
+    deployments = mkDeployments {
+      cartographer = { env = { MICRONAUT_CONFIG_FILES = "/etc/cartographer/mail.yml"; }; };
+      mob = { tmp = true; };
+      scribe = { tmp = true; };
+      heave = { tmp = true; };
+    };
   };
 }

@@ -131,5 +131,17 @@ in
       ];
     };
 
+    heave = {
+      service = {
+        image = "heave:latest";
+        tmpfs = [ "/tmp" ];
+        environment = {
+          KAFKA_BOOTSTRAP_SERVERS = "kafka:19092";
+        };
+        volumes = [
+          "${toString ./.}/configs/heave:/etc/heave"
+        ];
+      };
+    };
   };
 }
