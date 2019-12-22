@@ -9,7 +9,6 @@ using MailKit.Security;
 using System.Collections.Generic;
 using System.Linq;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Heave
 {
