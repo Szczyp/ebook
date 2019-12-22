@@ -69,7 +69,7 @@ let
         };
       };
 
-  createTopic = name: {
+  mkTopic = name: {
     name = "create-${name}-topic";
     image = "solsson/kafka-cli@sha256:9fa3306e9f5d18283d10e01f7c115d8321eedc682f262aff784bd0126e1f2221";
     command = [
@@ -105,12 +105,22 @@ let
       excludedTopics = [ "heave" ];
       extraTopics = [ "draft" ];
     in
-      map createTopic ((filter (topic: !(elem topic excludedTopics)) projectNames) ++ extraTopics);
+      map mkTopic ((filter (topic: !(elem topic excludedTopics)) projectNames) ++ extraTopics);
+
+  mkNamespace = name: {
+    metadata = {
+      name = name;
+      labels.name = name;
+    };
+  };
+
 in
 {
   imports = with kubenix.modules; [ k8s ];
 
   kubernetes.resources = {
+    namespaces = listToAttrs (map (n: nameValuePair n (mkNamespace n)) [ "ebook" ]);
+
     jobs."create-ebook-topics" = {
       metadata = {
         name = "create-ebook-topics";

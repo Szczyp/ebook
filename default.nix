@@ -88,16 +88,14 @@ let
   '';
 
   apply-config = writeShellScriptBin "apply-config" ''
-    set -euo pipefail
-
     ${kubectl}/bin/kubectl create namespace kafka
     ${kubectl}/bin/kubectl apply -k ../kubernetes-kafka/variants/dev-small
 
-    ${kubectl}/bin/kubectl create namespace ebook
     ${kubectl}/bin/kubectl apply -f ${k8sConfig}
   '';
 
   packages = listToAttrs (map (path: { name = "${baseNameOf path}"; value = mkPkg path; }) projects);
+
   images = mapAttrs (n: v: v.image) (filterAttrs (n: v: v ? image) packages);
 
   shell = mkShell {
