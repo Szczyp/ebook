@@ -16,7 +16,7 @@ from smtplib import SMTP
 import ssl
 import tempfile
 from urlextract import URLExtract
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import yaml
 
 logging.basicConfig(level=logging.INFO)
@@ -127,25 +127,26 @@ def get_name(article):
                 (" - " + article['byline'] if article['byline'] else ""))))
 
 
-async def convert_image(session, img, tmpdir):
-    url = img["src"]
+async def convert_image(session, url, img, tmpdir):
+    url = urljoin(url, img["src"])
     filename = os.path.join(tmpdir, os.path.basename(urlparse(url).path))
     await fetch_img(session, url, filename)
     await mogrify(filename)
     img["src"] = filename
 
 
-async def convert_images(session, article, tmpdir):
+async def convert_images(session, url, article, tmpdir):
     soup = BeautifulSoup(article["content"], "html.parser")
-    await asyncio.gather(*[convert_image(session, img, tmpdir) for img in soup.find_all('img')])
+    await asyncio.gather(*[convert_image(session, url, img, tmpdir) for img in soup.find_all('img')])
     article["content"] = str(soup)
 
 
 async def make_ebook(session, bag):
-    html = await fetch_link(session, bag['url'])
+    url = bag['url']
+    html = await fetch_link(session, url)
     article = await readability(html)
     tmpdir = tempfile.mkdtemp()
-    await convert_images(session, article, tmpdir)
+    await convert_images(session, url, article, tmpdir)
     name = get_name(article)
     filename = os.path.join(tmpdir, re.sub(r'(?u)[^-\w.]', ' ', name))
     await make_epub(filename, article['title'], article['byline'],
