@@ -72,16 +72,23 @@ namespace Heave
             #warning CheckCertificateRevocation is false, please investigate.
             client.CheckCertificateRevocation = false;
 
+            void send(MimeMessage message)
+            {
+                try
+                {
+                    client.Send(message);
+                }
+                catch
+                {
+                    client.Connect(config.Host, 587, SecureSocketOptions.StartTls);
+                    client.Authenticate(config.User, config.Password);
+                    send(message);
+                }
+            }
+
             return payload =>
             {
-                client.Connect(config.Host, 587, SecureSocketOptions.StartTls);
-                client.Authenticate(config.User, config.Password);
-
-                var message = MimeMessage.Load(new MemoryStream(payload));
-
-                client.Send(message);
-
-                client.Disconnect(true);
+                send(MimeMessage.Load(new MemoryStream(payload)));
             };
         }
     }
