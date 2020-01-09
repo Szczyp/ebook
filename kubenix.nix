@@ -6,10 +6,7 @@ let
   configs = attrNames (readDir ./configs);
 
   mkSecret = name:
-    { metadata = {
-        name = name;
-        namespace = "ebook";
-      };
+    {
       type = "Opaque";
       stringData = mapAttrs
         (f: _: readFile (./configs + "/${name}/${f}"))
@@ -34,18 +31,15 @@ let
 
       finalVolumes = zipAttrsWith (_: v: concatLists v) [ tempVolumes configVolumes ];
 
-      defaultEnv = { KAFKA_BOOTSTRAP_SERVERS = "bootstrap.kafka:9092"; };
+      defaultEnv = { KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"; };
 
       finalEnv = mapAttrsToList nameValuePair (defaultEnv // env);
 
     in
       {
         metadata = {
-          name = name;
-          namespace = "ebook";
           labels = {
             app = name;
-            namespace = "ebook";
           };
         };
 
@@ -56,9 +50,8 @@ let
             metadata.labels.app = name;
             spec = {
               containers."${name}" = {
-                name = "${name}";
-                image = "registry:5000/${name}:latest";
-                imagePullPolicy = "IfNotPresent";
+                image = "registry.local/${name}:latest";
+                imagePullPolicy = "Always";
                 env = finalEnv;
                 resources.limits.cpu = "100m";
                 volumeMounts = finalVolumes.mounts;
@@ -69,27 +62,42 @@ let
         };
       };
 
-  mkTopic = name: {
-    name = "create-${name}-topic";
-    image = "solsson/kafka-cli@sha256:9fa3306e9f5d18283d10e01f7c115d8321eedc682f262aff784bd0126e1f2221";
-    command = [
-      "./bin/kafka-topics.sh"
-      "--zookeeper"
-      "zookeeper.kafka:2181"
-      "--create"
-      "--if-not-exists"
-      "--topic"
-      "${name}"
-      "--partitions"
-      "1"
-      "--replication-factor"
-      "1"
-    ];
-    resources.limits = {
-      cpu = "100m";
-      memory = "20Mi";
+  mkStatefulSet = name: { image, env ? [], ports ? [], resources ? {}, persistentVolumes }:
+    let
+      claim = name: { storage, ... }: {
+        metadata.name = name;
+        spec = {
+          accessModes = [ "ReadWriteOnce" ];
+          resources.requests.storage = storage;
+          storageClassName = "standard";
+        };
+      };
+      mount = name: { mountPath, ... }: {
+        inherit name mountPath;
+      };
+    in {
+      spec = {
+        podManagementPolicy = "Parallel";
+        updateStrategy.type = "RollingUpdate";
+        replicas = 1;
+        selector.matchLabels.app = name;
+        serviceName = name;
+        template = {
+          metadata.labels.app = name;
+          spec = {
+            containers."${name}" = {
+              image = image;
+              env = mapAttrsToList nameValuePair env;
+              ports = mapAttrsToList (n: p: { name = n; containerPort = p; }) ports;
+              resources = resources;
+              volumeMounts = mapAttrsToList mount persistentVolumes;
+            };
+            terminationGracePeriodSeconds = 30;
+          };
+        };
+        volumeClaimTemplates = mapAttrsToList claim persistentVolumes;
+      };
     };
-  };
 
   projectNames = map (path: baseNameOf path) projects;
 
@@ -100,39 +108,72 @@ let
         deployments
       ]);
 
-  topics =
-    let
-      excludedTopics = [ "heave" ];
-      extraTopics = [ "draft" ];
-    in
-      map mkTopic ((filter (topic: !(elem topic excludedTopics)) projectNames) ++ extraTopics);
-
-  mkNamespace = name: {
-    metadata = {
-      name = name;
-      labels.name = name;
+  mkService = name: attrs: {
+    spec = {
+      ports = mapAttrsToList (n: p: { name = n; port = p; }) attrs.ports;
+      selector.app = name;
     };
   };
-
 in
 {
   imports = with kubenix.modules; [ k8s ];
 
   kubernetes.resources = {
-    namespaces = listToAttrs (map (n: nameValuePair n (mkNamespace n)) [ "ebook" ]);
+    secrets = listToAttrs (map (c: nameValuePair c (mkSecret c)) configs);
 
-    jobs."create-ebook-topics" = {
-      metadata = {
-        name = "create-ebook-topics";
-        namespace = "ebook";
-      };
-      spec.template.spec = {
-        restartPolicy = "Never";
-        containers = topics;
-      };
+    services = mapAttrs mkService {
+      kafka = { ports = { kafka = 9092; }; };
+      zookeeper =  { ports = { client = 2181; peer = 2888; election = 3888; }; };
     };
 
-    secrets = listToAttrs (map (c: nameValuePair c (mkSecret c)) configs);
+    statefulSets = mapAttrs mkStatefulSet {
+      kafka = {
+        image = "wurstmeister/kafka:2.12-2.3.1";
+        env = {
+          KAFKA_ADVERTISED_HOST_NAME = "kafka";
+          KAFKA_PORT = "9092";
+          KAFKA_ZOOKEEPER_CONNECT = "zookeeper:2181";
+          KAFKA_HEAP_OPTS = "-Xms256M -Xmx256M";
+        };
+        ports = { kafka = 9092; };
+        resources = {
+          limits.memory = "600Mi";
+          requests = {
+            cpu = "100m";
+            memory = "100Mi";
+          };
+        };
+        persistentVolumes = {
+          data = {
+            mountPath = "/var/lib/kafka/data";
+            storage = "10Gi";
+          };
+        };
+      };
+
+      zookeeper = {
+        image = "zookeeper:3.4.9";
+        env = {
+          ZOO_MY_ID = "1";
+          ZOO_PORT = "2181";
+          ZOO_SERVERS = "server.1=zookeeper:2888:3888";
+        };
+        ports = { client = 2181; peer = 2888; election = 3888; };
+        resources = {
+          limits.memory = "120Mi";
+          requests = {
+            cpu = "10m";
+            memory = "100Mi";
+          };
+        };
+        persistentVolumes = {
+          data = {
+            mountPath = "/var/lib/zookeeper";
+            storage = "1Gi";
+          };
+        };
+      };
+    };
 
     deployments = mkDeployments {
       cartographer = { env = { MICRONAUT_CONFIG_FILES = "/etc/cartographer/mail.yml"; }; };
