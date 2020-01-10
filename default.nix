@@ -10,7 +10,7 @@ let
     sha256 = "1rmhwic80vlra5g1ism0q46jbmx52wmc34cxw3k9i6q5xbx291g1";
   }) { inherit pkgs; };
 
-  mkPkg = path: callPackage path {};
+  mkPkg = path: import path {};
 
   projects = map (s: ./services + s) [
     "/cartographer"
@@ -49,7 +49,7 @@ let
     done
   '';
 
-  build-images = writeShellScriptBin "build-images" ''
+  push-images = writeShellScriptBin "push-images" ''
     set -euo pipefail
 
     for i in ${concatStringsSep " " (attrValues images)}
@@ -76,7 +76,7 @@ let
   images = mapAttrs (n: v: v.image) (filterAttrs (n: v: v ? image) packages);
 
   shell = mkShell {
-    buildInputs = [ arion kafkacat kind kubectl create-cluster build-images apply-config show-config ];
+    buildInputs = [ arion kafkacat kind kubectl create-cluster push-images ];
   };
 
 in {

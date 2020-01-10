@@ -1,33 +1,33 @@
-{ pkgs ? import ../nixpkgs.nix }:
+{ pkgs ? import ./nixpkgs.nix }:
+with pkgs;
 
 let
-  python = import ./requirements.nix { inherit pkgs; };
+  overrides = [
+    poetry2nix.defaultPoetryOverrides
+    (self: super: {
+      confluent-kafka = super.confluent-kafka.overrideAttrs(old: {
+        buildInputs = old.buildInputs ++ [ pkgs.rdkafka ];
+        dontStrip = false;
+      });
+    })
+  ];
 
-  pypi2nix = pkgs.pythonPackages.callPackage(pkgs.fetchFromGitHub {
-    owner  = "nix-community";
-    repo   = "pypi2nix";
-    rev    = "bdb7420ce6650be80957ec9be10480e6eacacd27";
-    sha256 = "0jnxp76j4i4pjyqsyrzzb54nlhx6mqf7rhcix61pv1ghiq1l7lv2";
-  }) {};
-
-  name = "test-kafka-client";
-  version = "1.0.0";
-
-  drv = python.mkDerivation {
-    name = "${name}-${version}";
-    src = ./.;
-    buildInputs = [];
-    propagatedBuildInputs = (builtins.attrValues python.packages) ++ [ pkgs.mailsend-go ];
+  drv = poetry2nix.mkPoetryApplication {
+    src = lib.cleanSource ./.;
+    pyproject = ./pyproject.toml;
+    poetrylock = ./poetry.lock;
+    python = python3;
+    overrides = overrides;
   };
 
-  shell = pkgs.mkShell {
-    buildInputs = [ python.interpreter pypi2nix pkgs.calibre pkgs.mailsend-go ];
+  env = poetry2nix.mkPoetryEnv {
+    poetrylock = ./poetry.lock;
+    python = python3;
+    overrides = overrides;
   };
 
-  image = pkgs.dockerTools.buildLayeredImage {
-    inherit name;
-    tag = "latest";
-    config.Cmd = [ "${drv}/bin/${name}"];
+  shell = mkShell {
+    buildInputs = [ env mailsend-go calibre ];
   };
 in
-drv // { inherit shell image; }
+drv // { inherit shell; }

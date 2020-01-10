@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "mob"
+version = "1.0.0"
+description = ""
+authors = ["Szczyp <qb@szczyp.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+confluent-kafka = "^1.3.0"
+
+[tool.poetry.scripts]
+mob = 'mob:main'
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

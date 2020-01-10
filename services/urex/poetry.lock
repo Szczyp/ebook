@@ -1,0 +1,104 @@
+[[package]]
+category = "main"
+description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+name = "appdirs"
+optional = false
+python-versions = "*"
+version = "1.4.3"
+
+[[package]]
+category = "main"
+description = "Confluent's Python client for Apache Kafka"
+name = "confluent-kafka"
+optional = false
+python-versions = "*"
+version = "1.3.0"
+
+[package.extras]
+avro = ["fastavro", "requests", "avro", "avro-python3"]
+dev = ["pytest-timeout", "flake8", "fastavro", "requests", "pytest (4.6.4)", "avro", "avro-python3", "pytest"]
+
+[[package]]
+category = "main"
+description = "Internationalized Domain Names in Applications (IDNA)"
+name = "idna"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "2.8"
+
+[[package]]
+category = "main"
+description = "URI parsing, classification and composition"
+name = "uritools"
+optional = false
+python-versions = "~=3.5"
+version = "3.0.0"
+
+[[package]]
+category = "main"
+description = "Collects and extracts URLs from given text."
+name = "urlextract"
+optional = false
+python-versions = "*"
+version = "0.14.0"
+
+[package.dependencies]
+appdirs = "*"
+idna = "*"
+uritools = "*"
+
+[metadata]
+content-hash = "df53666b6b8951338ef394fa2c1507519b02f1e9d1016c818fdd86ebd75b6913"
+python-versions = "^3.7"
+
+[metadata.files]
+appdirs = [
+    {file = "appdirs-1.4.3-py2.py3-none-any.whl", hash = "sha256:d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e"},
+    {file = "appdirs-1.4.3.tar.gz", hash = "sha256:9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92"},
+]
+confluent-kafka = [
+    {file = "confluent-kafka-1.3.0.tar.gz", hash = "sha256:4025ccddbc79443a4e2342de0d770f669558eb737fca2e7851558cd45f78ef78"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:0efd716da4f03f99d45fbb0d1583c5c8bf1eabc258a883588e3cd6ee06c0facb"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:d060ffc618b5618b8e01bc1414104e4c595746f28029ac91b1f7b63d5bcb72f2"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:a1925564bb10556686a9857ce22c222f1d6e66079d3379e23edec0bb3c19703b"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:63245ea826238f7c41002c6583e44d07a3a25fbcedd320af4902bb22d17a67ec"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27m-win32.whl", hash = "sha256:8469a8780a8d6258d4be08dc882b1d2e8114cfb93ae3836c2841ecfc127efc03"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27m-win_amd64.whl", hash = "sha256:98258fbe75c5d67f0e6103eec1763f9bb713e4258dbdac45ecf8805a975fdd5c"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:48941bff7b151ebe8fc5d958b8b039164ad9bbb4b5b66dde7d8c16ce36fa5ca5"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:fcb975bc7b26611e3c5c32f3c584ed860703f0496b22c096642ebc36d8cb4f12"},
+    {file = "confluent_kafka-1.3.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:99d75d06e79ec7d489cd410717d5ad303dee2a632db5d39f5d20f1ec1a40a23e"},
+    {file = "confluent_kafka-1.3.0-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:f294a3c3115c2b12a8f0dec6165e1bd427f3a4ca6066a9028e13f9a516c9a162"},
+    {file = "confluent_kafka-1.3.0-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:86bfac9a48a7a77c1f4972272521f970c4bbd55975a5c7c7d172c21dea094f28"},
+    {file = "confluent_kafka-1.3.0-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:70a2aa7056143ff30a8259d69327b38838f402fabbcc0699cfd8a7de4123825a"},
+    {file = "confluent_kafka-1.3.0-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:413cc9189ba7560bdc1010bbf3cabdcccfb794262f20aa867778e4059e789e88"},
+    {file = "confluent_kafka-1.3.0-cp35-cp35m-win32.whl", hash = "sha256:4d85e900ee59cba6acbe2ed415f6b8b86c86cca4f1cf0782bca24588cb594f52"},
+    {file = "confluent_kafka-1.3.0-cp35-cp35m-win_amd64.whl", hash = "sha256:c72c9223a95b6668a805b175ab39e10a1cb2074e1cfa32a7cace758c744c4238"},
+    {file = "confluent_kafka-1.3.0-cp36-cp36m-macosx_10_6_intel.whl", hash = "sha256:6095b248c457518d3f83ecb981a819512241b3c3fd7f461f3c55405278ab7825"},
+    {file = "confluent_kafka-1.3.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:86685d98e28bc9eade04a06b4979829f1d5c7785bced8cf335152e4dd363e4aa"},
+    {file = "confluent_kafka-1.3.0-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:a4600737ed4ceb6c799319d1d2977c46c00966274d868bcdeba66b655558ee26"},
+    {file = "confluent_kafka-1.3.0-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:ce45cc45b0dd29fb5a297a7f248f98dc5bde0142d48e07a19140f45906296b14"},
+    {file = "confluent_kafka-1.3.0-cp36-cp36m-win32.whl", hash = "sha256:f7a8bb7a5e80776a2dd8d4f4edbef1ebd5fdb2f443f87e95e08f6f7c598c33e1"},
+    {file = "confluent_kafka-1.3.0-cp36-cp36m-win_amd64.whl", hash = "sha256:9350101ca2db756cb9ca2c5ef410a0c19b200267add97a76c2ffa167ac59685a"},
+    {file = "confluent_kafka-1.3.0-cp37-cp37m-macosx_10_6_intel.whl", hash = "sha256:1f52d6dd04fc81cb22e89a6b579cde83634f9c98218af6fcb794e8e924fc5de0"},
+    {file = "confluent_kafka-1.3.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:1bcb0d45fba5fcfa87971667490ff41ec8aae99e8c66ec61bf2c28e4dabf2737"},
+    {file = "confluent_kafka-1.3.0-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:b96882b342b78b082aeedb56ee3c35d137adeadc26a63188ea36ae46ae1d485c"},
+    {file = "confluent_kafka-1.3.0-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:81a1f91a82c65bc3d3d77dbb821b2c91e36ec482a5fc1dec8996c00c4c5bbd3b"},
+    {file = "confluent_kafka-1.3.0-cp37-cp37m-win32.whl", hash = "sha256:910cd945e9684c4d1ee8777258e6f3fa6a54e5ff8d361bba65b03275d0e57f18"},
+    {file = "confluent_kafka-1.3.0-cp37-cp37m-win_amd64.whl", hash = "sha256:4194c11fdfa47fe749eabe7f2bcd259e921a457b046df5fe82d11dd519412327"},
+    {file = "confluent_kafka-1.3.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:77f545e9b143b22d2f11609677aacf7d15855b0166a59634fb1b125ac209b7d7"},
+    {file = "confluent_kafka-1.3.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:5252f989c364b1231eb4bd26db7a6acae1020af53069c7567f4f9627afab2612"},
+    {file = "confluent_kafka-1.3.0-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:e3bcb44595824dd1c78980bb57804a18ff8de16e257e747bd2724db88acfee25"},
+    {file = "confluent_kafka-1.3.0-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:c57c58f812a21fa8ad9f8bac88b4cd026dfe5b4f1fc9353d4fc0186c9b6d558e"},
+]
+idna = [
+    {file = "idna-2.8-py2.py3-none-any.whl", hash = "sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"},
+    {file = "idna-2.8.tar.gz", hash = "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407"},
+]
+uritools = [
+    {file = "uritools-3.0.0-py3-none-any.whl", hash = "sha256:5ba20a5de979a6a65b3d55998bee86ca1d97075d0f22923b85590b5e39c2b307"},
+    {file = "uritools-3.0.0.tar.gz", hash = "sha256:405917a31ce58a57c8ccd0e4ea290f38baf2f4823819c3688f5331f1aee4ccb0"},
+]
+urlextract = [
+    {file = "urlextract-0.14.0-py3-none-any.whl", hash = "sha256:29a061061661967eb8e2415b59a1257f76c83df8f2810a0d492cb68e28d72bd4"},
+    {file = "urlextract-0.14.0.tar.gz", hash = "sha256:6ed1bc878bc0a2e6634d7ebf327a465c0b8482d65f4a883dab7f75a393aea80f"},
+]

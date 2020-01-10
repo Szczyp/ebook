@@ -1,3 +1,4 @@
 data/
 .envrc
 .mypy_cache/
+/result

@@ -1,35 +1,39 @@
 { pkgs ? import ./nixpkgs.nix }:
+with pkgs;
 
 let
-  python = import ./requirements.nix { inherit pkgs; };
+  overrides = [
+    poetry2nix.defaultPoetryOverrides
+    (self: super: {
+      confluent-kafka = super.confluent-kafka.overrideAttrs(old: {
+        buildInputs = old.buildInputs ++ [ rdkafka ];
+        dontStrip = false;
+      });
+    })
+  ];
 
-  pypi2nix = pkgs.pythonPackages.callPackage(pkgs.fetchFromGitHub {
-    owner  = "nix-community";
-    repo   = "pypi2nix";
-    rev    = "bdb7420ce6650be80957ec9be10480e6eacacd27";
-    sha256 = "0jnxp76j4i4pjyqsyrzzb54nlhx6mqf7rhcix61pv1ghiq1l7lv2";
-  }) {};
+  drv = poetry2nix.mkPoetryApplication {
+    src = lib.cleanSource ./.;
+    pyproject = ./pyproject.toml;
+    poetrylock = ./poetry.lock;
+    python = python3;
+    overrides = overrides;
+    propagatedBuildInputs = [ kindlegen ];
+  };
 
-  readLines = file: with pkgs.lib; splitString "\n" (removeSuffix "\n" (builtins.readFile file));
-  fromRequirementsFile = file: pythonPackages:
-    builtins.map (name: builtins.getAttr name pythonPackages)
-      (builtins.filter (l: l != "") (readLines file));
+  env = poetry2nix.mkPoetryEnv {
+    poetrylock = ./poetry.lock;
+    python = python3;
+    overrides = overrides;
+  };
+
+  shell = mkShell {
+    buildInputs = [ env poetry poetry2nix.cli kindlegen ];
+  };
 
   name = "mob";
-  version = "1.0.0";
 
-  drv = python.mkDerivation {
-    name = "${name}-${version}";
-    src = ./.;
-    buildInputs = [];
-    propagatedBuildInputs = (fromRequirementsFile ./requirements.txt python.packages) ++ [ pkgs.kindlegen ];
-  };
-
-  shell = pkgs.mkShell {
-    buildInputs = [ python.interpreter pypi2nix ];
-  };
-
-  image = pkgs.dockerTools.buildLayeredImage {
+  image = dockerTools.buildLayeredImage {
     inherit name;
     tag = "latest";
     config.Cmd = [ "${drv}/bin/${name}"];
