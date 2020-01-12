@@ -52,9 +52,9 @@ let
   push-images = writeShellScriptBin "push-images" ''
     set -euo pipefail
 
-    for i in ${concatStringsSep " " (attrValues images)}
+    for i in ${concatStringsSep " " (attrNames images)}
     do
-      ${docker}/bin/docker load -i $i
+      ${docker}/bin/docker load -i $(nix-build -A images.$i)
     done
 
     for p in pubes scribe heave
