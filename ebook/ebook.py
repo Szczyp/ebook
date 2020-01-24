@@ -201,6 +201,7 @@ def url2ebook():
     args = argparser.parse_args()
     outpath = os.getcwd()
     bags = asyncio.run(make_ebooks([{'url': args.url}]))
+    shutil.copy2(bags[0]['filename'] + ".epub", outpath)
     shutil.copy2(bags[0]['filename'] + ".mobi", outpath)
 
 
