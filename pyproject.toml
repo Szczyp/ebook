@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ebook"
-version = "1.0.8"
+version = "1.0.9"
 description = "IMAP url -> SMTP mobi"
 authors = ["Szczyp <qb@szczyp.com>"]
 license = "GPL-3.0-or-later"
