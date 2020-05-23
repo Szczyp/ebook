@@ -128,11 +128,12 @@ def get_name(article):
 
 
 async def convert_image(session, url, img, tmpdir):
-    url = urljoin(url, img["src"])
-    filename = os.path.join(tmpdir, os.path.basename(urlparse(url).path))
-    await fetch_img(session, url, filename)
-    await mogrify(filename)
-    img["src"] = filename
+    if "src" in img and img["src"]:
+        url = urljoin(url, img["src"])
+        filename = os.path.join(tmpdir, os.path.basename(urlparse(url).path))
+        await fetch_img(session, url, filename)
+        await mogrify(filename)
+        img["src"] = filename
 
 
 async def convert_images(session, url, article, tmpdir):
