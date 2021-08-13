@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ebook"
-version = "1.0.9"
+version = "1.0.10"
 description = "IMAP url -> SMTP mobi"
 authors = ["Szczyp <qb@szczyp.com>"]
 license = "GPL-3.0-or-later"
@@ -11,7 +11,7 @@ url2ebook = 'ebook:url2ebook'
 hyphenate = 'ebook:hyphenate'
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 IMAPClient = "^2.1"
 pandocfilters = "^1.4"
 Pyphen = "^0.9.5"

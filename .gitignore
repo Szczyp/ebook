@@ -5,4 +5,7 @@
 /config.yaml
 /result
 /ebook/__pycache__/
+/data
+/services
+/test-kafka-client
 .envrc

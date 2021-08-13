@@ -6,8 +6,8 @@ let
   readability = (callPackage (fetchFromGitHub {
     owner  = "Szczyp";
     repo   = "readability";
-    rev    = "v1.0.0";
-    sha256 = "0dbwcb2xsnp9qyx71pghk7p4s1x0zh38qn73h34sgqshwhx23py1";
+    rev    = "v1.0.1";
+    sha256 = "0fd1r3j5kia26gkgzab2aqh52knl2qyqml24b25mg8yqcx51m7n0";
   }) { inherit pkgs; }).package;
 
   pandoc-bin = stdenv.mkDerivation {
@@ -24,6 +24,8 @@ let
   '';
   };
 
+  kindlegen = callPackage ./vendor/kindlegen.nix { };
+
   external-dependencies = [
     pandoc-bin
     kindlegen
@@ -31,17 +33,16 @@ let
     imagemagick7
   ];
 
-  drv = (poetry2nix.mkPoetryPackage {
-    python = python37;
-    pyproject = ./pyproject.toml;
-    poetryLock = ./poetry.lock;
-    src = lib.cleanSource ./.;
-  }).overrideAttrs (d: {
-    propagatedBuildInputs = d.propagatedBuildInputs ++ external-dependencies;
-  });
+  drv = poetry2nix.mkPoetryApplication {
+    projectDir = ./.;
+  };
 
-  shell = pkgs.mkShell {
-    buildInputs = [ poetry ] ++ external-dependencies;
+  env = poetry2nix.mkPoetryEnv {
+    projectDir = ./.;
+  };
+
+  shell = mkShell {
+    buildInputs = [ env ] ++ external-dependencies;
   };
 in
 drv // { inherit shell; }
