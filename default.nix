@@ -42,7 +42,7 @@ let
   };
 
   shell = mkShell {
-    buildInputs = [ env ] ++ external-dependencies;
+    buildInputs = [ env poetry ] ++ external-dependencies;
   };
 in
 drv // { inherit shell; }
