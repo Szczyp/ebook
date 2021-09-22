@@ -110,6 +110,17 @@ doc = ["sphinx"]
 test = ["mock (>=1.3.0)"]
 
 [[package]]
+name = "langdetect"
+version = "1.0.9"
+description = "Language detection library ported from Google's language-detection."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "multidict"
 version = "5.1.0"
 description = "multidict implementation"
@@ -162,7 +173,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "typing-extensions"
-version = "3.10.0.0"
+version = "3.10.0.2"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 category = "main"
 optional = false
@@ -205,7 +216,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "c911380296faa9c9f7ab76cbe902db0f1c805d09d24893155a3df0ec6aedb35a"
+content-hash = "2de29d945dba1a149c125de2b340c4c52b35bd89fec43d6fd0b795ceae8df75b"
 
 [metadata.files]
 aiohttp = [
@@ -311,6 +322,10 @@ imapclient = [
     {file = "IMAPClient-2.2.0-py2.py3-none-any.whl", hash = "sha256:f30a4a94746accfdb0d2b0324e312f2c83579ae20351c3c20ea76f17127936ab"},
     {file = "IMAPClient-2.2.0.zip", hash = "sha256:0578056b9fff5316516f460810fc8b485f6fd7e3f4203786c130e222007d63f3"},
 ]
+langdetect = [
+    {file = "langdetect-1.0.9-py2-none-any.whl", hash = "sha256:7cbc0746252f19e76f77c0b1690aadf01963be835ef0cd4b56dddf2a8f1dfc2a"},
+    {file = "langdetect-1.0.9.tar.gz", hash = "sha256:cbc1fef89f8d062739774bd51eda3da3274006b3661d199c2655f6b3f6d605a0"},
+]
 multidict = [
     {file = "multidict-5.1.0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:b7993704f1a4b204e71debe6095150d43b2ee6150fa4f44d6d966ec356a8d61f"},
     {file = "multidict-5.1.0-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:9dd6e9b1a913d096ac95d0399bd737e00f2af1e1594a787e00f7975778c8b2bf"},
@@ -397,9 +412,9 @@ soupsieve = [
     {file = "soupsieve-2.2.1.tar.gz", hash = "sha256:052774848f448cf19c7e959adf5566904d525f33a3f8b6ba6f6f8f26ec7de0cc"},
 ]
 typing-extensions = [
-    {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},
-    {file = "typing_extensions-3.10.0.0-py3-none-any.whl", hash = "sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84"},
-    {file = "typing_extensions-3.10.0.0.tar.gz", hash = "sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342"},
+    {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
+    {file = "typing_extensions-3.10.0.2-py3-none-any.whl", hash = "sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34"},
+    {file = "typing_extensions-3.10.0.2.tar.gz", hash = "sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"},
 ]
 uritools = [
     {file = "uritools-3.0.2-py3-none-any.whl", hash = "sha256:576737664f51f82d5c2a98e25f6c5da73a57cc88326dbb686fd6c5d06ebd6c29"},

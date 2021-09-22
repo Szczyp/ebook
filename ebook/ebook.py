@@ -8,6 +8,7 @@ import email
 from email import policy
 from imapclient import IMAPClient
 import json
+from langdetect import detect
 import logging
 import os
 import re
@@ -81,10 +82,22 @@ async def readability(html):
     return json.loads(out.decode())
 
 
-async def make_epub(filename, title, author, content):
+languages = {
+    "en": "en-US",
+    "pl": "pl-PL"
+}
+
+def detect_language(article):
+    return languages[detect(article)]
+
+
+async def make_epub(filename, lang, title, author, content):
     os.chdir(os.path.dirname(__file__))
     proc = await asyncio.subprocess.create_subprocess_exec(
         'pandoc',
+        '--metadata', f'title={title}',
+        '--metadata', f'author={author}',
+        '--metadata', f'language={lang}',
         '-s',
         '--filter', 'hyphenate',
         '--section-divs',
@@ -94,8 +107,6 @@ async def make_epub(filename, title, author, content):
         '--template', 'template.t',
         '-f', 'html',
         '-t', 'epub3',
-        '--metadata', f'title={title}',
-        '--metadata', f'author={author}',
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE)
     await proc.communicate(content.encode())
@@ -146,11 +157,12 @@ async def make_ebook(session, bag):
     url = bag['url']
     html = await fetch_link(session, url)
     article = await readability(html)
+    lang = detect_language(article['content'])
     tmpdir = tempfile.mkdtemp()
     await convert_images(session, url, article, tmpdir)
     name = get_name(article)
     filename = os.path.join(tmpdir, re.sub(r'(?u)[^-\w.]', ' ', name))
-    await make_epub(filename, article['title'], article['byline'],
+    await make_epub(filename, lang, article['title'], article['byline'],
                     article['content'])
     await make_mobi(filename)
     bag['name'] = name
@@ -177,7 +189,7 @@ def create_mails(bags):
 def send_mails(mails):
     mails = list(mails)
     if mails:
-        with SMTP(CONFIG['HOST']) as smtp:
+        with SMTP(CONFIG['HOST'], 587) as smtp:
             smtp.starttls()
             smtp.login(CONFIG['USERNAME'], CONFIG['PASSWORD'])
             for mail in mails:
