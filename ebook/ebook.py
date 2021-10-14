@@ -21,7 +21,8 @@ from urllib.parse import urlparse, urljoin
 import yaml
 
 logging.basicConfig(level=logging.INFO)
-
+logging.getLogger('filelock').setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 def read_config():
     global CONFIG
@@ -194,7 +195,7 @@ def send_mails(mails):
             smtp.login(CONFIG['USERNAME'], CONFIG['PASSWORD'])
             for mail in mails:
                 smtp.send_message(mail)
-                logging.info("ebook sent from %s to %s: %s", mail['From'],
+                logger.info("ebook sent from %s to %s: %s", mail['From'],
                              mail['To'], mail['Subject'])
 
 

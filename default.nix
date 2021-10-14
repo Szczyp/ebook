@@ -1,14 +1,13 @@
-{ pkgs ? import ./nixpkgs.nix }:
+{ pkgs ? import <nixpkgs> { } }:
 
 with pkgs;
 
 let
-  readability = (callPackage (fetchFromGitHub {
-    owner  = "Szczyp";
-    repo   = "readability";
-    rev    = "v1.0.1";
-    sha256 = "0fd1r3j5kia26gkgzab2aqh52knl2qyqml24b25mg8yqcx51m7n0";
-  }) { inherit pkgs; }).package;
+  readability = callPackage (
+    fetchTarball {
+      url = https://github.com/Szczyp/readability/archive/refs/tags/v1.0.3.tar.gz;
+      sha256 = "06mfabsnkw0l44ynfbk7yyh9g6s4ys0q4g64y0xkiy0a8h6859h4";
+    }) { };
 
   pandoc-bin = stdenv.mkDerivation {
     name = "pandoc-bin";
@@ -19,9 +18,9 @@ let
     };
     buildPhase = "true";
     installPhase = ''
-    mkdir -p $out/bin
-    cp bin/pandoc $out/bin
-  '';
+      mkdir -p $out/bin
+      cp bin/pandoc $out/bin
+    '';
   };
 
   kindlegen = callPackage ./vendor/kindlegen.nix { };
@@ -44,5 +43,14 @@ let
   shell = mkShell {
     buildInputs = [ env poetry ] ++ external-dependencies;
   };
+
+  image = dockerTools.buildImage {
+    name = "ebook";
+    contents = external-dependencies ++ [ drv ];
+    config = {
+      Env = [ "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt" ];
+      Cmd = [ "ebook" "config" ];
+    };
+  };
 in
-drv // { inherit shell; }
+drv // { inherit shell image; }
