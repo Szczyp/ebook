@@ -113,13 +113,6 @@ async def make_epub(filename, lang, title, author, content):
     await proc.communicate(content.encode())
 
 
-async def make_mobi(filename):
-    proc = await asyncio.subprocess.create_subprocess_exec(
-        'kindlegen', f'{filename}.epub',
-        stdout=asyncio.subprocess.DEVNULL)
-    await proc.wait()
-
-
 async def mogrify(filename):
     proc = await asyncio.subprocess.create_subprocess_exec(
         'mogrify',
@@ -130,6 +123,7 @@ async def mogrify(filename):
         '-resize', '1072x1448>',
         filename)
     await proc.wait()
+
 
 def get_name(article):
     return re.sub(
@@ -165,7 +159,6 @@ async def make_ebook(session, bag):
     filename = os.path.join(tmpdir, re.sub(r'(?u)[^-\w.]', ' ', name))
     await make_epub(filename, lang, article['title'], article['byline'],
                     article['content'])
-    await make_mobi(filename)
     bag['name'] = name
     bag['filename'] = filename
     return bag
@@ -178,7 +171,7 @@ def create_mails(bags):
         mail["To"] = CONFIG['RECIPIENTS'][bag['from']]
         mail["Subject"] = bag['name']
         mail["Message-ID"] = email.utils.make_msgid()
-        filename = bag['filename'] + ".mobi"
+        filename = bag['filename'] + ".epub"
         with open(filename, 'rb') as f:
             mail.add_attachment(f.read(),
                                 filename=filename,
@@ -216,7 +209,6 @@ def url2ebook():
     outpath = os.getcwd()
     bags = asyncio.run(make_ebooks([{'url': args.url}]))
     shutil.copy2(bags[0]['filename'] + ".epub", outpath)
-    shutil.copy2(bags[0]['filename'] + ".mobi", outpath)
 
 
 if __name__ == "__main__":

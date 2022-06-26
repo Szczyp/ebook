@@ -23,11 +23,8 @@ let
     '';
   };
 
-  kindlegen = callPackage ./vendor/kindlegen.nix { };
-
   external-dependencies = [
     pandoc-bin
-    kindlegen
     readability
     imagemagick7
   ];
@@ -46,7 +43,7 @@ let
 
   image = dockerTools.buildImage {
     name = "ebook";
-    contents = external-dependencies ++ [ drv ];
+    contents = external-dependencies ++ [ cacert drv ];
     config = {
       Env = [ "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt" ];
       Cmd = [ "ebook" "config" ];
