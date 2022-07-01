@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
 
-import aiohttp
 import argparse
 import asyncio
-from bs4 import BeautifulSoup
 import email
-from email import policy
-from imapclient import IMAPClient
 import json
-from langdetect import detect
 import logging
 import os
 import re
 import shutil
-from smtplib import SMTP
 import ssl
 import tempfile
-from urlextract import URLExtract
-from urllib.parse import urlparse, urljoin
+from email import policy
+from pathlib import Path
+from smtplib import SMTP
+from urllib.parse import urljoin, urlparse
+
+import aiohttp
 import yaml
+from bs4 import BeautifulSoup
+from imapclient import IMAPClient
+from langdetect import detect
+from urlextract import URLExtract
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('filelock').setLevel(logging.WARNING)
@@ -27,7 +29,7 @@ logger = logging.getLogger(__name__)
 def read_config():
     global CONFIG
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('config')
+    argparser.add_argument('--config', default = f"{Path.home()}/.config/ebook/config.yml")
     args = argparser.parse_args()
     with open(args.config, 'rb') as f:
         CONFIG = yaml.safe_load(f)
