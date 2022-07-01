@@ -14,15 +14,19 @@ hyphenate = 'ebook:hyphenate'
 python = "^3.9"
 IMAPClient = "^2.2"
 pandocfilters = "^1.4.3"
-Pyphen = "^0.11.0"
+Pyphen = "^0.12.0"
 urlextract = "^1.3.0"
 PyYAML = "^5.4.1"
 aiohttp = "^3.7.4"
-cchardet = "^2.1.7"
 beautifulsoup4 = "^4.9.3"
 langdetect = "^1.0.9"
 
 [tool.poetry.dev-dependencies]
+pylint = "^2.14.4"
+yapf = "^0.32.0"
+isort = "^5.10.1"
+jedi = "^0.18.1"
+pynvim = "^0.4.3"
 
 [build-system]
 requires = ["poetry>=0.12"]
