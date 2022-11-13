@@ -174,9 +174,10 @@ def create_mails(bags):
         mail["Subject"] = bag['name']
         mail["Message-ID"] = email.utils.make_msgid()
         filename = bag['filename'] + ".epub"
+        name = os.path.basename(filename)
         with open(filename, 'rb') as f:
             mail.add_attachment(f.read(),
-                                filename=filename,
+                                filename=name,
                                 maintype='application',
                                 subtype='octet-stream')
         yield mail
