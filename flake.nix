@@ -1,7 +1,6 @@
 {
   inputs = {
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      utils.url = "github:numtide/flake-utils";
       readabilitySrc = {
         type = "github";
         owner = "Szczyp";
@@ -11,30 +10,34 @@
       };
   };
 
-  outputs = {self, nixpkgs, utils, readabilitySrc}:
-    let out = system:
-      let pkgs = nixpkgs.legacyPackages."${system}";
-          readability = pkgs.callPackage readabilitySrc {};
-          deps = with pkgs; [ readability pandoc imagemagick7 ];
-      in {
+  outputs = {self, nixpkgs, readabilitySrc}:
+    let
+      supportedSystems = [ "x86_64-linux" ]; #"x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+      pkgs = forAllSystems (system: nixpkgs.legacyPackages.${system});
+      readability = system: pkgs.${system}.callPackage readabilitySrc {};
+      deps = system: with pkgs.${system}; [ (readability system) pandoc imagemagick7 ];
+    in rec {
+      packages = forAllSystems (system: {
+        default = pkgs.${system}.poetry2nix.mkPoetryApplication {
+          projectDir = self;
+          preferWheels = true;
+          propagatedBuildInputs = (deps system);
+        };
+      });
 
-          devShell = with pkgs; (poetry2nix.mkPoetryEnv {
-            projectDir = ./.;
-            preferWheels = true;
-          }).env.overrideAttrs (_: {
-            buildInputs = [ poetry ] ++ deps;
-          });
+      defaultPackage = forAllSystems (system: packages.${system}.default);
 
-          defaultPackage = with pkgs.poetry2nix; mkPoetryApplication {
-              projectDir = ./.;
+      devShells = forAllSystems (system: {
+        default = pkgs.${system}.mkShellNoCC {
+          packages = with pkgs.${system}; ([
+            (poetry2nix.mkPoetryEnv {
+              projectDir = self;
               preferWheels = true;
-              propagatedBuildInputs = deps;
-          };
-
-          defaultApp = utils.lib.mkApp {
-              drv = self.defaultPackage."${system}";
-          };
-
-      }; in with utils.lib; eachSystem defaultSystems out;
-
+            })
+            poetry
+          ] ++ (deps system));
+        };
+      });
+    };
 }
