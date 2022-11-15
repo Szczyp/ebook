@@ -58,6 +58,7 @@ def extract_links(mails):
                 if part.get_content_maintype() == "text":
                     for url in URLExtract().find_urls(part.get_content()):
                         yield {'url': strip_newlines(url), 'from': sender}
+                        break
                     break
 
 
