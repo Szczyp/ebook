@@ -47,13 +47,18 @@ def fetch_mails():
 
 
 def extract_links(mails):
+    def strip_newlines(url):
+        newlines = "\\r\\n"
+        return url.lstrip(newlines).rstrip(newlines)
+
     for mail in mails:
         sender = URLExtract(extract_email=True).find_urls(mail["From"])[0]
         if sender in CONFIG['RECIPIENTS']:
-            payload = mail.get_payload(decode=True)
-            urls = URLExtract().find_urls(str(payload))
-            url = urls[0].rstrip("\\r\\n")
-            yield {'url': url, 'from': sender}
+            for part in mail.walk():
+                if part.get_content_maintype() == "text":
+                    for url in URLExtract().find_urls(part.get_content()):
+                        yield {'url': strip_newlines(url), 'from': sender}
+                    break
 
 
 async def make_ebooks(bags):
