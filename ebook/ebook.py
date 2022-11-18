@@ -10,7 +10,7 @@ import re
 import shutil
 import ssl
 import tempfile
-from email import policy
+from email import policy, message, utils
 from pathlib import Path
 from smtplib import SMTP
 from urllib.parse import urljoin, urlparse
@@ -41,7 +41,7 @@ def fetch_mails():
         imap.login(CONFIG['USERNAME'], CONFIG['PASSWORD'])
         imap.select_folder('INBOX')
         messages = imap.search('UNSEEN')
-        for uid, message_data in imap.fetch(messages, 'RFC822').items():
+        for _, message_data in imap.fetch(messages, 'RFC822').items():
             yield email.message_from_bytes(message_data[b'RFC822'],
                                            policy=policy.default)
 
@@ -86,7 +86,7 @@ async def readability(html):
         'readability',
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE)
-    out, err = await proc.communicate(html.encode())
+    out, _ = await proc.communicate(html.encode())
     await proc.wait()
     return json.loads(out.decode())
 
@@ -174,11 +174,11 @@ async def make_ebook(session, bag):
 
 def create_mails(bags):
     for bag in bags:
-        mail = email.message.EmailMessage()
+        mail = message.EmailMessage()
         mail['From'] = CONFIG['USERNAME']
         mail["To"] = CONFIG['RECIPIENTS'][bag['from']]
         mail["Subject"] = bag['name']
-        mail["Message-ID"] = email.utils.make_msgid()
+        mail["Message-ID"] = utils.make_msgid()
         filename = bag['filename'] + ".epub"
         name = os.path.basename(filename)
         with open(filename, 'rb') as f:
@@ -206,9 +206,10 @@ def main():
     URLExtract().update_when_older(30)
     send_mails(
         create_mails(
-            asyncio.run(make_ebooks(
-                extract_links(
-                    fetch_mails())))))
+            asyncio.run(
+                make_ebooks(
+                    extract_links(
+                        fetch_mails())))))
 
 
 def url2ebook():
