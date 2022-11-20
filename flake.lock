@@ -16,19 +16,35 @@
         "type": "github"
       }
     },
-    "readabilitySrc": {
-      "flake": false,
+    "nixpkgs_2": {
       "locked": {
-        "lastModified": 1634165750,
-        "narHash": "sha256-BKaCDEQK+Dg78MQ8goH2RJuXoPdnLmc9IRTwafVSrho=",
+        "lastModified": 1668650906,
+        "narHash": "sha256-rlmmw6lIlkMQIiB+NsnO8wQYWTfle8TA41UREPLP5VY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "cf3ab54b4afe2b7477faa1dd0b65bf74c055d70c",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixpkgs-unstable",
+        "type": "indirect"
+      }
+    },
+    "readability": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1668957691,
+        "narHash": "sha256-fI7E08s6sALOlni3kr5VIIYSYrlIcUJPzJ0LE9G1xQk=",
         "owner": "Szczyp",
         "repo": "readability",
-        "rev": "dcb334a76d0c622dd2172eccaa8c3939095c993f",
+        "rev": "1ce44d7ca9bb607d179a926196fa836be2055cd1",
         "type": "github"
       },
       "original": {
         "owner": "Szczyp",
-        "ref": "v1.0.3",
         "repo": "readability",
         "type": "github"
       }
@@ -36,7 +52,7 @@
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
-        "readabilitySrc": "readabilitySrc"
+        "readability": "readability"
       }
     }
   },

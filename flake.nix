@@ -1,22 +1,19 @@
 {
   inputs = {
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      readabilitySrc = {
-        type = "github";
-        owner = "Szczyp";
-        repo = "readability";
-        ref = "v1.0.3";
-        flake = false;
-      };
+      readability.url = "github:Szczyp/readability";
   };
 
-  outputs = {self, nixpkgs, readabilitySrc}:
+  outputs = {self, nixpkgs, readability}:
     let
       supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
       pkgs = forAllSystems (system: nixpkgs.legacyPackages.${system});
-      readability = system: pkgs.${system}.callPackage readabilitySrc {};
-      deps = system: with pkgs.${system}; [ (readability system) pandoc imagemagick7 ];
+      deps = system: with pkgs.${system}; [
+        readability.packages.${system}.default
+        pandoc
+        imagemagick7
+      ];
     in rec {
       packages = forAllSystems (system: {
         default = pkgs.${system}.poetry2nix.mkPoetryApplication {
