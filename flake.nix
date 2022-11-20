@@ -26,7 +26,11 @@
         };
       });
 
-      defaultPackage = forAllSystems (system: packages.${system}.default);
+      overlays.default = (final: prev: rec {
+        ebook = packages.${final.system}.default;
+      });
+
+      nixosModules.default = import ./module.nix;
 
       devShells = forAllSystems (system: {
         default = pkgs.${system}.mkShellNoCC {
