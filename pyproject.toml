@@ -11,23 +11,23 @@ url2ebook = 'ebook:url2ebook'
 hyphenate = 'ebook:hyphenate'
 
 [tool.poetry.dependencies]
-python = "^3.9"
-IMAPClient = "^2.2"
-pandocfilters = "^1.4.3"
-Pyphen = "^0.12.0"
-urlextract = "^1.3.0"
-PyYAML = "^5.4.1"
-aiohttp = "^3.7.4"
-beautifulsoup4 = "^4.9.3"
+python = "^3.11"
+IMAPClient = "^3.0.1"
+pandocfilters = "^1.5.1"
+Pyphen = "^0.15.0"
+urlextract = "^1.9.0"
+PyYAML = "^6.0.1"
+aiohttp = "^3.9.5"
+beautifulsoup4 = "^4.12.3"
 langdetect = "^1.0.9"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.14.4"
-yapf = "^0.32.0"
-isort = "^5.10.1"
-jedi = "^0.18.1"
-pynvim = "^0.4.3"
+pylint = "^3.1.0"
+yapf = "^0.40.2"
+isort = "^5.13.2"
+jedi = "^0.19.1"
+pynvim = "^0.5.0"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
