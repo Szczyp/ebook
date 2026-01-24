@@ -12,7 +12,7 @@ import ssl
 import tempfile
 from email import policy, message, utils
 from pathlib import Path
-from smtplib import SMTP
+from smtplib import SMTP_SSL
 from urllib.parse import urljoin, urlparse
 
 import aiohttp
@@ -192,8 +192,7 @@ def create_mails(bags):
 def send_mails(mails):
     mails = list(mails)
     if mails:
-        with SMTP(CONFIG['HOST'], 587) as smtp:
-            smtp.starttls()
+        with SMTP_SSL(CONFIG['HOST'], 465) as smtp:
             smtp.login(CONFIG['USERNAME'], CONFIG['PASSWORD'])
             for mail in mails:
                 smtp.send_message(mail)
